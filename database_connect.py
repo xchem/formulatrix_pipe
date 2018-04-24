@@ -5,32 +5,37 @@ import csv
 import pandas
 
 
+class GetAllBarcodes(luigi.Task):
+    def requires(self):
+        return GetBarcodes(plate_type='2drop'), GetBarcodes(plate_type='3drop')
+
+
 class GetBarcodes(luigi.Task):
     server = luigi.Parameter(default='DIAMRISQL01\ROCKIMAGER')
     database = luigi.Parameter(default='RockMaker')
     username = luigi.Parameter(default='formulatrix')
     password = luigi.Parameter(default='fmlx216')
+    plate_type = luigi.Parameter()
 
     def requires(self):
         pass
 
     def output(self):
         cwd = os.getcwd()
-        return luigi.LocalTarget(os.path.join(cwd, 'barcodes.csv'))
+        return luigi.LocalTarget(os.path.join(cwd, str('barcodes_' + self.plate_type + '_.csv')))
 
     def run(self):
         barcodes = []
         conn = pytds.connect(self.server, self.database, self.username, self.password)
         c = conn.cursor()
 
-        query = "SELECT Barcode FROM Plate " \
+        c.execute("SELECT Barcode FROM Plate " \
                 "INNER JOIN TreeNode as TN1 ON Plate.TreeNodeID = TN1.ID " \
                 "INNER JOIN TreeNode as TN2 ON TN1.ParentID = TN2.ID " \
                 "INNER JOIN TreeNode as TN3 ON TN2.ParentID = TN3.ID " \
                 "INNER JOIN TreeNode as TN4 ON TN3.ParentID = TN4.ID " \
-                "where TN4.Name='Xchem'"
+                "where TN4.Name='Xchem' AND TN3.Name like %s", (str('%' + self.plate_type + '%'),))
 
-        c.execute(query)
         rows = c.fetchall()
         for row in rows:
             barcodes.append(str(row[0]))
