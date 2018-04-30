@@ -1,13 +1,19 @@
 import luigi
+import shutil
+import os
+
 from run_ranker import FindPlates
-from get_barcodes import GetPlateTypes
 
 
 class StartPipe(luigi.Task):
 
     def requires(self):
-
-        # remove all barcode info files
-
-        yield GetPlateTypes()
         yield FindPlates()
+
+    def run(self):
+        shutil.rmtree('barcodes_2drop')
+        os.mkdir('barcodes_2drop')
+        shutil.rmtree('barcodes_3drop')
+        os.mkdir('barcodes_3drop')
+        os.remove('barcodes.info.done')
+

@@ -6,18 +6,23 @@ from transfer_images import TransferImages
 from config_classes import RockMakerDBConfig
 
 
+# This task kicks off the picking up of images, working backwards to find barcode info from TransferImages
 class GetPlateTypes(luigi.Task):
+    # these are all defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
     username = RockMakerDBConfig().username
     password = RockMakerDBConfig().password
+    # this translates the directory names in RockMaker to names for the pipeline
     translate = {'SWISSci_2drop':'2drop', 'SWISSci_3Drop':'3drop'}
 
     def requires(self):
         plate_types = []
+        # connect to the RockMaker database
         conn = pytds.connect(self.server, self.database, self.username, self.password)
         c = conn.cursor()
 
+        # find the directory names corresponding to plate types for all entries in the XChem folder
         c.execute("SELECT TN3.Name as 'Name' From Plate " \
                   "INNER JOIN TreeNode TN1 ON Plate.TreeNodeID = TN1.ID " \
                   "INNER JOIN TreeNode TN2 ON TN1.ParentID = TN2.ID " \
@@ -35,6 +40,7 @@ class GetPlateTypes(luigi.Task):
             conn = pytds.connect(self.server, self.database, self.username, self.password)
             c = conn.cursor()
 
+            # For each plate type, find all of the relevant barcoded
             c.execute("SELECT Barcode FROM Plate " \
                       "INNER JOIN TreeNode as TN1 ON Plate.TreeNodeID = TN1.ID " \
                       "INNER JOIN TreeNode as TN2 ON TN1.ParentID = TN2.ID " \

@@ -2,6 +2,7 @@ import luigi
 import os
 import glob
 import cluster_submission
+from get_barcodes import GetPlateTypes
 
 
 class RunRanker(luigi.Task):
@@ -12,7 +13,7 @@ class RunRanker(luigi.Task):
     MCR = luigi.Parameter(default='/dls/science/groups/i04-1/software/MCR/r2012a/v717/')
 
     def requires(self):
-        pass
+        return GetPlateTypes()
 
     def run(self):
         current_directory = os.getcwd()

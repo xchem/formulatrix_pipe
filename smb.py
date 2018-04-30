@@ -39,7 +39,7 @@ class SmbOperations:
         process = subprocess.Popen(' '.join([self.connect_string, retrieve_command]),
                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        out,err = process.communicate()
+        out, err = process.communicate()
         print(out)
         print(err)
 
