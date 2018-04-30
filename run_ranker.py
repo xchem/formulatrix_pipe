@@ -2,7 +2,7 @@ import luigi
 import os
 import glob
 import cluster_submission
-from transfer_images import TransferImages
+
 
 class RunRanker(luigi.Task):
     imager = luigi.Parameter()
@@ -17,26 +17,22 @@ class RunRanker(luigi.Task):
     def run(self):
         current_directory = os.getcwd()
 
-        mat_files = []
-        if 'RI1000-0080' in self.imager and '2drop' in self.plate_type:
-            mat_files = glob.glob('rcMiddle-mrc2d*.mat')
-        if 'RI1000-0080' in self.imager and '3drop' in self.plate_type:
-            mat_files = glob.glob('rcMiddle-sci3d*.mat')
+        lookup = {
+            'RI1000-0080_2drop': glob.glob('rcMiddle-mrc2d*.mat'),
+            'RI1000-0080_3drop': glob.glob('rcMiddle-sci3d*.mat'),
+            'RI1000-0081_2drop': glob.glob('rcLeft-mrc2d*.mat'),
+            'RI1000-0081_3drop': glob.glob('rcLeft-sci3d*.mat'),
+            'RI1000-0276_2drop': glob.glob('rcRight-mrc2d*.mat'),
+            'RI1000-0276_3drop': glob.glob('rcRight-sci3d*.mat'),
+            'RI1000-0082_2drop': glob.glob('rcCold-mrc2d*.mat'),
+            'RI1000-0082_3drop': glob.glob('rcCold-sci3d*.mat')
+        }
 
-        if 'RI1000-0081' in self.imager and '2drop' in self.plate_type:
-            mat_files = glob.glob('rcLeft-mrc2d*.mat')
-        if 'RI1000-0081' in self.imager and '3drop' in self.plate_type:
-            mat_files = glob.glob('rcLeft-sci3d*.mat')
-
-        if 'RI1000-0276' in self.imager and '2drop' in self.plate_type:
-            mat_files = glob.glob('rcRight-mrc2d*.mat')
-        if 'RI1000-0276' in self.imager and '3drop' in self.plate_type:
-            mat_files = glob.glob('rcRight-sci3d*.mat')
-
-        if 'RI1000-0082' in self.imager and '2drop' in self.plate_type:
-            mat_files = glob.glob('rcCold-mrc2d*.mat')
-        if 'RI1000-0082' in self.imager and '3drop' in self.plate_type:
-            mat_files = glob.glob('rcCold-sci3d*.mat')
+        lookup_string = str(self.imager + '_' + self.plate_type)
+        if lookup_string in lookup.keys():
+            mat_files = lookup[lookup_string]
+        else:
+            raise Exception('Either mat files do not exist, or are not defined in the lookup')
 
         if not mat_files:
             raise Exception('Imager mat files not found!')
