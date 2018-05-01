@@ -2,7 +2,7 @@ import luigi
 import os
 import pandas
 from smb import SmbOperations
-# from get_barcodes import GetBarcodeInfo
+from get_barcodes import *
 from config_classes import ImageTransferConfig
 
 
@@ -55,67 +55,53 @@ class TransferImages(luigi.Task):
     def output(self):
         results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
         self.dates = list(set(results['DateImaged']))
+        if len(self.dates) == 0:
+            self.dates = ['empty']
         for date in self.dates:
             yield luigi.LocalTarget(str('transfers/' + self.barcode + '_' + date + '.done'))
 
     def requires(self):
-        try:
-            lf = []
-            ld = []
-            # rf = []
-            drop_num = []
-            rd = []
-            results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
+        print(self.csv_file)
+        lf = []
+        ld = []
+        # rf = []
+        drop_num = []
+        rd = []
+        results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
 
-            out_list = {
+        out_list = {
 
-            }
+        }
 
-            for i in range(0, len(results['PlateID'])):
-                remote_filepath = '\\'.join(['WellImages',
-                                             str(results['PlateID'][i]),
-                                             str('plateID_' + str(results['PlateID'][i])),
-                                             str('batchID_' + str(results['BatchID'][i])),
-                                             str('wellNum_' + str(results['WellNum'][i])),
-                                             str('profileID_' + str(results['ProfileID'][i])), '\\'
-                                             ])
+        for i in range(0, len(results['PlateID'])):
+            remote_filepath = '\\'.join(['WellImages',
+                                         str(results['PlateID'][i]),
+                                         str('plateID_' + str(results['PlateID'][i])),
+                                         str('batchID_' + str(results['BatchID'][i])),
+                                         str('wellNum_' + str(results['WellNum'][i])),
+                                         str('profileID_' + str(results['ProfileID'][i])), '\\'
+                                         ])
 
-                imager_name = results['ImagerName'][i]
-                num = format(int(results['WellColNum'][[i]]), '02d')
-                col = str(results['WellRowLetter'][i])
-                drop = str(results['DropNum'][i])
-                date = str(results['DateImaged'][i])
+            imager_name = results['ImagerName'][i]
+            num = format(int(results['WellColNum'][[i]]), '02d')
+            col = str(results['WellRowLetter'][i])
+            drop = str(results['DropNum'][i])
+            date = str(results['DateImaged'][i])
 
-                local_filename = str(self.barcode + '_' + num + col + '_' + drop + '.jpg')
-                local_filepath = os.path.join('SubwellImages', str(self.barcode + '_' + imager_name + '_' + date + '_'
-                                                                   + self.plate_type))
+            local_filename = str(self.barcode + '_' + num + col + '_' + drop + '.jpg')
+            local_filepath = os.path.join('SubwellImages', str(self.barcode + '_' + imager_name + '_' + date + '_'
+                                                               + self.plate_type))
 
-                if not os.path.isdir(os.path.join(os.getcwd(), local_filepath)):
-                    os.makedirs(local_filepath)
+            if not os.path.isdir(os.path.join(os.getcwd(), local_filepath)):
+                os.makedirs(local_filepath)
 
-                ld.append(local_filepath)
-                lf.append(local_filename)
-                rd.append(remote_filepath)
-                drop_num.append(drop)
+            ld.append(local_filepath)
+            lf.append(local_filename)
+            rd.append(remote_filepath)
+            drop_num.append(drop)
 
-                # smbobj = SmbOperations(username=self.username, password=self.password, machine=self.machine,
-                #                        options=self.options)
-                #
-                # pattern = str('d' + str(results['DropNum'][i]))
-                # out_list = smbobj.list_files(remote_filepath)
-                # for file in out_list:
-                #     if '_ef.jpg' in file and pattern in file:
-                #         remote_filename = file
-                #
-                #         ld.append(local_filepath)
-                #         lf.append(local_filename)
-                #         rd.append(remote_filepath)
-                #         rf.append(remote_filename)
-
-            return [TransferImage(ld=ld, lf=lf, rd=rd, drop_num=drop) for (ld, lf, rd, drop) in list(zip(ld, lf, rd,
-                                                                                                         drop_num))]
-        except:
-            return GetBarcodeInfo(barcode=self.barcode, plate_type=self.plate_type)
+        return [TransferImage(ld=ld, lf=lf, rd=rd, drop_num=drop) for (ld, lf, rd, drop) in list(zip(ld, lf, rd,
+                                                                                                     drop_num))]
 
     def run(self):
         for date in self.dates:

@@ -16,6 +16,9 @@ class GetPlateTypes(luigi.Task):
     # this translates the directory names in RockMaker to names for the pipeline
     translate = {'SWISSci_2drop':'2drop', 'SWISSci_3Drop':'3drop'}
 
+    def output(self):
+        return luigi.LocalTarget('plates.done')
+
     def requires(self):
         plate_types = []
         # connect to the RockMaker database
@@ -56,10 +59,15 @@ class GetPlateTypes(luigi.Task):
                 else:
                     raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
 
-        return [TransferImages(barcode=barcode, plate_type=plate_type,
+        yield [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
+
+        yield [TransferImages(barcode=barcode, plate_type=plate_type,
                                csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(plate_type)), str(barcode + '.csv')))
                 for (plate_type, barcode) in list(zip(plates, barcodes))]
 
+    def run(self):
+        with self.output().open('w') as f:
+            f.write('')
 
 class GetBarcodeInfo(luigi.Task):
     server = RockMakerDBConfig().server

@@ -3,6 +3,76 @@ import os
 import glob
 import cluster_submission
 from get_barcodes import GetPlateTypes
+from transfer_images import TransferImages
+import smtplib
+from email.mime.text import MIMEText
+
+
+class BatchCheckRanker(luigi.Task):
+
+    def output(self):
+        return luigi.LocalTarget('checkrank.done')
+
+    def requires(self):
+        files_list = glob.glob('ranker_jobs/*.sh')
+        checklist = [x.replace('RANK_','') for x in files_list]
+        checklist = [x.replace('.sh','') for x in checklist]
+        checklist = [x.replace('ranker_jobs/', '') for x in checklist]
+        return [CheckRanker(name=name) for name in checklist]
+
+    def run(self):
+        with self.output().open('w') as f:
+            f.write('')
+
+
+class CheckRanker(luigi.Task):
+    name = luigi.Parameter()
+    data_directory = luigi.Parameter(default='Data')
+    extension = luigi.Parameter(default='.mat')
+    emails = luigi.Parameter(default=['rachael.skyner@diamond.ac.uk',
+                                      'anthony.aimon@diamond.ac.uk',
+                                      'jose.brandao-neto@diamond.ac.uk',
+                                      'patrick.collins@diamond.ac.uk',
+                                      'alice.douangamath@diamond.ac.uk',
+                                      'richard.gillams@diamond.ac.uk'])
+
+    def requires(self):
+        pass
+
+    def output(self):
+        return luigi.LocalTarget(os.path.join('messages', str(self.name + '.txt')))
+
+    def run(self):
+        expected_file = os.path.join(self.data_directory, str(self.name + self.extension))
+        if not os.path.isfile(expected_file):
+            raise Exception('.mat file not found for ' + str(self.name) + '... check the queue or resubmit the job')
+
+        message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
+        
+I'm just letting you know that the plate %s has been successfully ranked. You can now view the plate in TeXRank. To do this:
+
+    1. Go to a windows machine (eurgh... windows) or use tserver
+    2. Open windows explorer or similar
+    3. Point explorer to \\dc.diamond.ac.uk\dls\science\groups\i04-1\software\luigi_pipeline\formulatrix_pipe
+    4. Click on TeXRankE
+    5. In the dropdown menu on the right, look for %s
+    6. Rank your plates
+    7. Celebrate the genius of Rachael
+    
+Have fun! :)''' % (' '.join(str(self.name).split('_')), ' '.join(str(self.name).split('_')))
+
+        with open(os.path.join('messages', str(self.name + '.txt')), 'w') as f:
+            f.write(message_text)
+
+        fp = open(os.path.join('messages', str(self.name + '.txt')), 'r')
+        msg = MIMEText(fp.read())
+        fp.close()
+        msg['Subject'] = str('Ranker: ' + self.name + ' has been ranked!')
+        msg['From'] = 'formulatrix-pipe'
+        msg['To'] = ','.join(self.emails)
+        s = smtplib.SMTP('localhost')
+        s.sendmail(msg['From'], self.emails, msg.as_string())
+        s.quit()
 
 
 class RunRanker(luigi.Task):
@@ -13,7 +83,12 @@ class RunRanker(luigi.Task):
     MCR = luigi.Parameter(default='/dls/science/groups/i04-1/software/MCR/r2012a/v717/')
 
     def requires(self):
-        return GetPlateTypes()
+        return TransferImages(barcode=self.plate.split('_')[0], plate_type=self.plate.split('_')[-1],
+                              csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(self.plate_type)),
+                                                    str(self.plate.split('_')[0] + '.csv')))
+
+    def output(self):
+        return luigi.LocalTarget(os.path.join('ranker_jobs', str('RANK_' + self.plate + '.sh')))
 
     def run(self):
         current_directory = os.getcwd()
@@ -52,6 +127,9 @@ class RunRanker(luigi.Task):
 class FindPlates(luigi.Task):
     subwell_directory = luigi.Parameter(default='SubwellImages')
 
+    def output(self):
+        return luigi.LocalTarget('findplates.done')
+
     def requires(self):
         if not os.path.isdir(os.path.join(os.getcwd(), self.subwell_directory)):
             print(os.getcwd())
@@ -68,6 +146,10 @@ class FindPlates(luigi.Task):
             imagers.append(plate_components[1])
             plate_types.append(plate_components[-1])
             plates.append(components[-1])
-
-        return[RunRanker(plate=plate, plate_type=plate_type, imager=imager) for (plate, plate_type, imager)
+        yield GetPlateTypes()
+        yield [RunRanker(plate=plate, plate_type=plate_type, imager=imager) for (plate, plate_type, imager)
                in list(zip(plates, plate_types, imagers))]
+
+    def run(self):
+        with self.output().open('w') as f:
+            f.write('')
