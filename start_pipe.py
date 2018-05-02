@@ -10,7 +10,7 @@ class StartPipe(luigi.Task):
 
     def requires(self):
         now = dt.datetime.now()
-        ago = now - dt.timedelta(minutes=30)
+        ago = now - dt.timedelta(minutes=120)
         directories = ['barcodes_2drop', 'barcodes_3drop']
         for directory in directories:
             for root, dirs, files in os.walk(os.path.join(os.getcwd(), directory)):
@@ -18,9 +18,14 @@ class StartPipe(luigi.Task):
                     path = os.path.join(root, fname)
                     st = os.stat(path)
                     mtime = dt.datetime.fromtimestamp(st.st_mtime)
-                    if mtime > ago:
-                        print(os.path.join(root, fname))
+
+                    if mtime < ago:
                         os.remove(os.path.join(root, fname))
+
+        yield FindPlates()
+        yield BatchCheckRanker()
+
+    def run(self):
         try:
             os.remove('plates.done')
         except:
@@ -33,9 +38,3 @@ class StartPipe(luigi.Task):
             os.remove('findplates.done')
         except:
             pass
-        # yield GetPlateTypes()
-        yield FindPlates()
-        yield BatchCheckRanker()
-
-    def run(self):
-        pass

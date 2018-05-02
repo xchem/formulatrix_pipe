@@ -83,7 +83,12 @@ class RunRanker(luigi.Task):
     MCR = luigi.Parameter(default='/dls/science/groups/i04-1/software/MCR/r2012a/v717/')
 
     def requires(self):
-        return TransferImages(barcode=self.plate.split('_')[0], plate_type=self.plate.split('_')[-1],
+        print(self.plate)
+        print(self.plate.split('_')[0])
+        print(self.plate.split('_')[-1].split('-')[-1])
+        print(os.path.join(os.getcwd(), str('barcodes_' + str(self.plate_type)),
+                                                    str(self.plate.split('_')[0] + '.csv')))
+        return TransferImages(barcode=str(self.plate.split('_')[0]), plate_type=str(self.plate.split('_')[-1].split('-')[-1]),
                               csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(self.plate_type)),
                                                     str(self.plate.split('_')[0] + '.csv')))
 
@@ -143,8 +148,8 @@ class FindPlates(luigi.Task):
             components = plate.split('/')
             plate_components = components[-1].split('_')
 
-            imagers.append(plate_components[1])
-            plate_types.append(plate_components[-1])
+            imagers.append(str(plate_components[-1].split('-')[0]) + '-' + plate_components[-1].split('-')[1])
+            plate_types.append(plate_components[-1].split('-')[2])
             plates.append(components[-1])
         yield GetPlateTypes()
         yield [RunRanker(plate=plate, plate_type=plate_type, imager=imager) for (plate, plate_type, imager)

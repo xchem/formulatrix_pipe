@@ -58,6 +58,7 @@ class TransferImages(luigi.Task):
         if len(self.dates) == 0:
             self.dates = ['empty']
         for date in self.dates:
+            print(date)
             yield luigi.LocalTarget(str('transfers/' + self.barcode + '_' + date + '.done'))
 
     def requires(self):
@@ -89,8 +90,8 @@ class TransferImages(luigi.Task):
             date = str(results['DateImaged'][i])
 
             local_filename = str(self.barcode + '_' + num + col + '_' + drop + '.jpg')
-            local_filepath = os.path.join('SubwellImages', str(self.barcode + '_' + imager_name + '_' + date + '_'
-                                                               + self.plate_type))
+            local_filepath = os.path.join('SubwellImages', str(self.barcode + '_' + date + '_' + imager_name + '-' +
+                                                               self.plate_type))
 
             if not os.path.isdir(os.path.join(os.getcwd(), local_filepath)):
                 os.makedirs(local_filepath)
