@@ -14,10 +14,12 @@ class BatchCheckRanker(luigi.Task):
         return luigi.LocalTarget('checkrank.done')
 
     def requires(self):
+        # get a list of all ranker jobs that have been produced by RunRanker
         files_list = glob.glob('ranker_jobs/*.sh')
         checklist = [x.replace('RANK_','') for x in files_list]
         checklist = [x.replace('.sh','') for x in checklist]
         checklist = [x.replace('ranker_jobs/', '') for x in checklist]
+        # Check whether the .mat file expected has appeared
         return [CheckRanker(name=name) for name in checklist]
 
     def run(self):
@@ -29,24 +31,29 @@ class CheckRanker(luigi.Task):
     name = luigi.Parameter()
     data_directory = luigi.Parameter(default='Data')
     extension = luigi.Parameter(default='.mat')
+    # a list of people to email when a plate has been ranked
     emails = luigi.Parameter(default=['rachael.skyner@diamond.ac.uk',
                                       'anthony.aimon@diamond.ac.uk',
                                       'jose.brandao-neto@diamond.ac.uk',
                                       'patrick.collins@diamond.ac.uk',
                                       'alice.douangamath@diamond.ac.uk',
-                                      'richard.gillams@diamond.ac.uk'])
+                                      'richard.gillams@diamond.ac.uk',
+                                      'romain.talon@diamond.ac.uk'])
 
     def requires(self):
         pass
 
     def output(self):
+        # a text version of the email sent is saved
         return luigi.LocalTarget(os.path.join('messages', str(self.name + '.txt')))
 
     def run(self):
+        # what we expect the output from the ranker job to be
         expected_file = os.path.join(self.data_directory, str(self.name + self.extension))
+        # if it's not there, throw an error - might just not be finished... maybe change to distinguish(?)
         if not os.path.isfile(expected_file):
             raise Exception('.mat file not found for ' + str(self.name) + '... check the queue or resubmit the job')
-
+        # message text for the email
         message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
         
 I'm just letting you know that the plate %s has been successfully ranked. You can now view the plate in TeXRank. To do this:
@@ -60,17 +67,21 @@ I'm just letting you know that the plate %s has been successfully ranked. You ca
     7. Celebrate the genius of Rachael
     
 Have fun! :)''' % (' '.join(str(self.name).split('_')), ' '.join(str(self.name).split('_')))
-
+        # write the message to a txt file
         with open(os.path.join('messages', str(self.name + '.txt')), 'w') as f:
             f.write(message_text)
-
+        # open the message as read
         fp = open(os.path.join('messages', str(self.name + '.txt')), 'r')
+        # read with email package
         msg = MIMEText(fp.read())
         fp.close()
+        # set email subject, to, from
         msg['Subject'] = str('Ranker: ' + self.name + ' has been ranked!')
         msg['From'] = 'formulatrix-pipe'
         msg['To'] = ','.join(self.emails)
+        # use localhost as email server
         s = smtplib.SMTP('localhost')
+        # send the email to everyone
         s.sendmail(msg['From'], self.emails, msg.as_string())
         s.quit()
 
@@ -83,11 +94,6 @@ class RunRanker(luigi.Task):
     MCR = luigi.Parameter(default='/dls/science/groups/i04-1/software/MCR/r2012a/v717/')
 
     def requires(self):
-        print(self.plate)
-        print(self.plate.split('_')[0])
-        print(self.plate.split('_')[-1].split('-')[-1])
-        print(os.path.join(os.getcwd(), str('barcodes_' + str(self.plate_type)),
-                                                    str(self.plate.split('_')[0] + '.csv')))
         return TransferImages(barcode=str(self.plate.split('_')[0]), plate_type=str(self.plate.split('_')[-1].split('-')[-1]),
                               csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(self.plate_type)),
                                                     str(self.plate.split('_')[0] + '.csv')))
@@ -97,7 +103,7 @@ class RunRanker(luigi.Task):
 
     def run(self):
         current_directory = os.getcwd()
-
+        # dictionary to translate imager code and pipelines plate types to the right matlab file for ranker
         lookup = {
             'RI1000-0080_2drop': glob.glob('rcMiddle-mrc2d*.mat'),
             'RI1000-0080_3drop': glob.glob('rcMiddle-sci3d*.mat'),
@@ -108,23 +114,26 @@ class RunRanker(luigi.Task):
             'RI1000-0082_2drop': glob.glob('rcCold-mrc2d*.mat'),
             'RI1000-0082_3drop': glob.glob('rcCold-sci3d*.mat')
         }
-
+        # define what we want to lookup in the above dict
         lookup_string = str(self.imager + '_' + self.plate_type)
+        # get the right matlab files from the lookup dict (by key)
         if lookup_string in lookup.keys():
             mat_files = lookup[lookup_string]
         else:
+            # raise exception if the lookup key is not defined (my fault)
             raise Exception('Either mat files do not exist, or are not defined in the lookup')
-
         if not mat_files:
+            # raise exception if there are no mat files (your fault)
             raise Exception('Imager mat files not found!')
-
+        # construct command to run ranker:
+        # run_rankerE.sh <matlab runtime> <plate name in SubwellImages> <matfiles - separated by no spaces and commas>
         run_ranker_command = ' '.join([self.run_rankerE_script, self.MCR, self.plate, ','.join(mat_files)])
-
+        # write the job file to be run on the cluster
         cluster_submission.write_job(job_directory=os.path.join(current_directory, 'ranker_jobs'),
                                      execute_directory=os.getcwd(),
                                      job_filename=str('RANK_' + self.plate + '.sh'),
                                      job_command=run_ranker_command, job_name=self.plate)
-
+        # submit the job to the cluster
         cluster_submission.submit_job(job_directory=os.path.join(current_directory, 'ranker_jobs'),
                                       job_script=str('RANK_' + self.plate + '.sh'))
 
@@ -136,9 +145,11 @@ class FindPlates(luigi.Task):
         return luigi.LocalTarget('findplates.done')
 
     def requires(self):
+        # raise an error if there's no SubwellImages dir
         if not os.path.isdir(os.path.join(os.getcwd(), self.subwell_directory)):
             print(os.getcwd())
             raise Exception('No Subwell Directory found!')
+        # Find the names of all plates - the subdirectories in SubwellImages
         plate_directories = [x[0] for x in os.walk(os.path.join(os.getcwd(), self.subwell_directory))
                   if os.path.join(os.getcwd(), 'SubwellImages') not in x]
         imagers = []
