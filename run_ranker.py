@@ -162,6 +162,7 @@ class FindPlates(luigi.Task):
             imagers.append(str(plate_components[-1].split('-')[0]) + '-' + plate_components[-1].split('-')[1])
             plate_types.append(plate_components[-1].split('-')[2])
             plates.append(components[-1])
+
         yield GetPlateTypes()
         yield [RunRanker(plate=plate, plate_type=plate_type, imager=imager) for (plate, plate_type, imager)
                in list(zip(plates, plate_types, imagers))]

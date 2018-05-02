@@ -35,7 +35,7 @@ class TestGetImages(unittest.TestCase):
         # check that an error is not thrown for transfer of empty file
         transfer = run_luigi_worker(TransferImages(csv_file=os.path.join(os.getcwd(), 'barcodes_2drop', '90jc.csv'),
                                                    barcode='90jc',
-                                                   plate_type='2_drop'))
+                                                   plate_type='2drop'))
 
         self.assertTrue(transfer)
 
@@ -43,7 +43,7 @@ class TestGetImages(unittest.TestCase):
         # run transfer for a 2_drop plate
         transfer = run_luigi_worker(TransferImages(csv_file=os.path.join(os.getcwd(), 'barcodes_2drop', '90j8.csv'),
                                                    barcode='90j8',
-                                                   plate_type='2_drop'))
+                                                   plate_type='2drop'))
         # check that the task ran successfully
         self.assertTrue(transfer)
         # check that the expected filepath was created
