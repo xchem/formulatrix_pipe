@@ -87,13 +87,13 @@ formulatrix_pipe
 ## Adding a plate type
 
 The plate types used are translated from the directory structure used in RockMaker, which looks something like:
-
+```
 XChem
 |- Plate Type (e.g. SwissSci3D)
 | |- Barcode
 | | |- Data
-
-The plate types are translated in get_barcodes.py to make them shorter and more understandable:
+```
+The plate types are translated in ```get_barcodes.py``` to make them shorter and more understandable:
 
 class GetPlateTypes(luigi.Task):
 ```
@@ -147,7 +147,7 @@ So to add a new plate type, add it to the translate dictionary, where the key is
 
 ## Adding a mat file for ranker
 
-In the directory structure above, the ranker file is given as <imager-platetype-subwell.mat>. This name does not really matter, as far as the pipeline is concerned, as there is a translation made between it's own naming conventions (from RockMaker) and the mat files. This is done in run_ranker.py:
+In the directory structure above, the ranker file is given as ```<imager-platetype-subwell.mat>```. This name does not really matter, as far as the pipeline is concerned, as there is a translation made between it's own naming conventions (from RockMaker) and the mat files. This is done in ```run_ranker.py```:
 ```
 class RunRanker(luigi.Task):
    imager = luigi.Parameter()
