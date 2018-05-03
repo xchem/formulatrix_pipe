@@ -86,6 +86,9 @@ class TransferImages(luigi.Task):
         rd = []
         results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
 
+        if len(results['PlateID'])/96 != int(len(results['PlateID'])/96):
+            raise Exception('Number of images not divisible by 96... some images missing?')
+
         for i in range(0, len(results['PlateID'])):
             # construct expected filepath on remote storage from info gathered from RockMaker DB
             remote_filepath = '\\'.join(['WellImages',
