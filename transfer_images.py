@@ -66,13 +66,18 @@ class TransferImages(luigi.Task):
         # read the csv file output from GetBarcodeInfo
         results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
         # separate the transfers by date - some plates may have been imaged on multiple days
-        self.dates = list(set(results['DateImaged']))
+        dates = results['DateImaged']
+        imagers = results['ImagerName']
+
+        self.dates_imagers = list(set(zip(dates, imagers)))
         if len(self.dates) == 0:
-            self.dates = ['empty']
+            self.dates_imagers = [('empty', '')]
+
         # catch plates which have not been imaged yet
-        for date in self.dates:
-            # produce a file for each transfer (should only differ by date imaged, not plate type obvs)
-            yield luigi.LocalTarget(str('transfers/' + self.barcode + '_' + date + '_' + self.plate_type + '.done'))
+        # produce a file for each transfer (should only differ by date imaged, not plate type obvs)
+        for (date, imager) in self.dates_imagers:
+            yield luigi.LocalTarget(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
+                                        self.plate_type + '.done'))
 
     def requires(self):
         lf = []
@@ -114,7 +119,8 @@ class TransferImages(luigi.Task):
                                                                                                      drop_num))]
 
     def run(self):
-        for date in self.dates:
+        for (date, imager) in self.dates_imagers:
             # write the output files to show all images have been transferred
-            with open(str('transfers/' + self.barcode + '_' + date + '_' + self.plate_type + '.done'), 'w') as f:
+            with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
+                                        self.plate_type + '.done'), 'w') as f:
                 f.write('')

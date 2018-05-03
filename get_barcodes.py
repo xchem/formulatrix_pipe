@@ -2,8 +2,8 @@ import pytds
 import luigi
 import os
 import pandas
-from transfer_images import TransferImages
 from config_classes import RockMakerDBConfig
+from transfer_images import TransferImages
 
 
 # This task kicks off the picking up of images, working backwards to find barcode info from TransferImages
@@ -68,7 +68,11 @@ class GetPlateTypes(luigi.Task):
                     # throw an exception if there's no translation - means someone has added a new plate type
                     raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
         # get all of the relevant info for every barcode (below)
-        return [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
+        yield [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
+        yield [TransferImages(barcode=barcode, plate_type=plate_type,
+                              csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(plate_type)),
+                                                    str(barcode + '.csv')))
+               for (plate_type, barcode) in list(zip(plates,barcodes))]
 
     def run(self):
         with self.output().open('w') as f:
