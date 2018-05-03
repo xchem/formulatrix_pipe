@@ -53,7 +53,7 @@ class CheckRanker(luigi.Task):
         expected_file = os.path.join(self.data_directory, str(self.name + self.extension))
         # if it's not there, throw an error - might just not be finished... maybe change to distinguish(?)
         if not os.path.isfile(expected_file):
-            job = 'ranker_jobs/' + self.name + '.sh'
+            job = 'ranker_jobs/RANK_' + self.name + '.sh'
             output = glob.glob(str(job + '.o*'))
             print(output)
             if not output:
