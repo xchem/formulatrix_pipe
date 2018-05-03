@@ -2,6 +2,7 @@ import luigi
 import os
 import glob
 import cluster_submission
+import subprocess
 from get_barcodes import GetPlateTypes
 from transfer_images import TransferImages
 import smtplib
@@ -52,7 +53,36 @@ class CheckRanker(luigi.Task):
         expected_file = os.path.join(self.data_directory, str(self.name + self.extension))
         # if it's not there, throw an error - might just not be finished... maybe change to distinguish(?)
         if not os.path.isfile(expected_file):
-            raise Exception('.mat file not found for ' + str(self.name) + '... check the queue or resubmit the job')
+            job = 'ranker_jobs/' + self.name + '.sh'
+            output = glob.glob(str(job + '.o*'))
+            print(output)
+            if not output:
+                remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
+                submission_string = ' '.join([
+                    remote_sub_command,
+                    '"',
+                    'qstat -r',
+                    '"'
+                ])
+
+                submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
+                                              stderr=subprocess.PIPE)
+                out, err = submission.communicate()
+                queue_jobs = []
+                output = (out.decode('ascii').split('\n'))
+                for line in output:
+                    if 'Full jobname' in line:
+                        jobname = line.split()[-1]
+                        queue_jobs.append(jobname)
+
+                if job not in queue_jobs:
+                    cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
+                                                  job_script=job.replace('ranker_jobs/', ''))
+                    raise Exception(
+                        'The job had no output, and was not found to be running in the queue. The job has been '
+                        'resubmitted. Will check again later!')
+
+            raise Exception('.mat file not found for ' + str(self.name) + '... something went wrong in ranker...')
         # message text for the email
         message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
         

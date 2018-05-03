@@ -70,7 +70,7 @@ class TransferImages(luigi.Task):
         imagers = results['ImagerName']
 
         self.dates_imagers = list(set(zip(dates, imagers)))
-        if len(self.dates) == 0:
+        if len(dates) == 0:
             self.dates_imagers = [('empty', '')]
 
         # catch plates which have not been imaged yet
@@ -89,7 +89,7 @@ class TransferImages(luigi.Task):
         for i in range(0, len(results['PlateID'])):
             # construct expected filepath on remote storage from info gathered from RockMaker DB
             remote_filepath = '\\'.join(['WellImages',
-                                         str(results['PlateID'][i]),
+                                         str(results['PlateID'][i])[-3:],
                                          str('plateID_' + str(results['PlateID'][i])),
                                          str('batchID_' + str(results['BatchID'][i])),
                                          str('wellNum_' + str(results['WellNum'][i])),
