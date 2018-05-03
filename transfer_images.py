@@ -86,6 +86,7 @@ class TransferImages(luigi.Task):
         rd = []
         results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
 
+        # make sure the number of images detected is divisible by 96 (i.e. the whole plate has been imaged)
         if len(results['PlateID'])/96 != int(len(results['PlateID'])/96):
             raise Exception('Number of images not divisible by 96... some images missing?')
 
