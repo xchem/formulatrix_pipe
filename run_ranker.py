@@ -39,7 +39,8 @@ class CheckRanker(luigi.Task):
                                       'patrick.collins@diamond.ac.uk',
                                       'alice.douangamath@diamond.ac.uk',
                                       'richard.gillams@diamond.ac.uk',
-                                      'romain.talon@diamond.ac.uk'])
+                                      'romain.talon@diamond.ac.uk',
+                                      'ailsa.powell@diamond.ac.uk'])
 
     def requires(self):
         pass
@@ -82,7 +83,7 @@ class CheckRanker(luigi.Task):
                         'The job had no output, and was not found to be running in the queue. The job has been '
                         'resubmitted. Will check again later!')
 
-            raise Exception('.mat file not found for ' + str(self.name) + '... something went wrong in ranker...')
+            raise Exception('.mat file not found for ' + str(self.name) + '... something went wrong in ranker or job is still running')
         # message text for the email
         message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
         
