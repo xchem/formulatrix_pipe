@@ -160,15 +160,15 @@ def run(self):
        current_directory = os.getcwd()
        # dictionary to translate imager code and pipelines plate types to the right matlab file for ranker
        lookup = {
-           'RI1000-0080_2drop': glob.glob('rcMiddle-mrc2d*.mat'),
-           'RI1000-0080_3drop': glob.glob('rcMiddle-sci3d*.mat'),
-           'RI1000-0081_2drop': glob.glob('rcLeft-mrc2d*.mat'),
-           'RI1000-0081_3drop': glob.glob('rcLeft-sci3d*.mat'),
-           'RI1000-0276_2drop': glob.glob('rcRight-mrc2d*.mat'),
-           'RI1000-0276_3drop': glob.glob('rcRight-sci3d*.mat'),
-           'RI1000-0082_2drop': glob.glob('rcCold-mrc2d*.mat'),
-           'RI1000-0082_3drop': glob.glob('rcCold-sci3d*.mat')
-       }
+            'RI1000-0080_2drop': glob.glob('RI1000-0080-2drop*.mat'),
+            'RI1000-0080_3drop': glob.glob('RI1000-0080-3drop*.mat'),
+            'RI1000-0081_2drop': glob.glob('RI1000-0081-2drop*.mat'),
+            'RI1000-0081_3drop': glob.glob('RI1000-0081-3drop*.mat'),
+            'RI1000-0276_2drop': glob.glob('RI1000-0276-2drop*.mat'),
+            'RI1000-0276_3drop': glob.glob('RI1000-0276-3drop*.mat'),
+            'RI1000-0082_2drop': glob.glob('RI1000-0082-2drop*.mat'),
+            'RI1000-0082_3drop': glob.glob('RI1000-0082-3drop*.mat')
+        }
        # define what we want to lookup in the above dict
        lookup_string = str(self.imager + '_' + self.plate_type)
  ```      
