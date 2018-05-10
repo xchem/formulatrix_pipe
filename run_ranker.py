@@ -83,6 +83,13 @@ class CheckRanker(luigi.Task):
                         'The job had no output, and was not found to be running in the queue. The job has been '
                         'resubmitted. Will check again later!')
 
+            if job not in queue_jobs:
+                cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
+                                              job_script=job.replace('ranker_jobs/', ''))
+                raise Exception(
+                    'The job had no output, and was not found to be running in the queue. The job has been '
+                    'resubmitted. Will check again later!')
+
             raise Exception('.mat file not found for ' + str(self.name) + '... something went wrong in ranker or job is still running')
         # message text for the email
         message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
@@ -136,14 +143,14 @@ class RunRanker(luigi.Task):
         current_directory = os.getcwd()
         # dictionary to translate imager code and pipelines plate types to the right matlab file for ranker
         lookup = {
-            'RI1000-0080_2drop': glob.glob('rcMiddle-mrc2d*.mat'),
-            'RI1000-0080_3drop': glob.glob('rcMiddle-sci3d*.mat'),
-            'RI1000-0081_2drop': glob.glob('rcLeft-mrc2d*.mat'),
-            'RI1000-0081_3drop': glob.glob('rcLeft-sci3d*.mat'),
-            'RI1000-0276_2drop': glob.glob('rcRight-mrc2d*.mat'),
-            'RI1000-0276_3drop': glob.glob('rcRight-sci3d*.mat'),
-            'RI1000-0082_2drop': glob.glob('rcCold-mrc2d*.mat'),
-            'RI1000-0082_3drop': glob.glob('rcCold-sci3d*.mat')
+            'RI1000-0080_2drop': glob.glob('RI1000-0080_2drop*.mat'),
+            'RI1000-0080_3drop': glob.glob('RI1000-0080_3drop*.mat'),
+            'RI1000-0081_2drop': glob.glob('RI1000-0081_2drop*.mat'),
+            'RI1000-0081_3drop': glob.glob('RI1000-0081_3drop*.mat'),
+            'RI1000-0276_2drop': glob.glob('RI1000-0276_2drop*.mat'),
+            'RI1000-0276_3drop': glob.glob('RI1000-0276_3drop*.mat'),
+            'RI1000-0082_2drop': glob.glob('RI1000-0082_2drop*.mat'),
+            'RI1000-0082_3drop': glob.glob('RI1000-0082_3drop*.mat')
         }
         # define what we want to lookup in the above dict
         lookup_string = str(self.imager + '_' + self.plate_type)
