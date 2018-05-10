@@ -7,9 +7,9 @@ This is the luigi pipeline used to transfer images from the formulatrix imagers 
 At diamond, all of the correct python packaged needed to run this pipeline are contained in a specific python distribution, which is located at: /dls/science/groups/i04-1/software/miniconda_3/bin/python
 
 The packages required for this pipeline are:
--luigi
--pytds (https://github.com/denisenkom/pytds)
--pandas
+- luigi
+- pytds (https://github.com/denisenkom/pytds)
+- pandas
 
 (All other packages come with python)
 
