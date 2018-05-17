@@ -53,47 +53,53 @@ class CheckRanker(luigi.Task):
         # what we expect the output from the ranker job to be
         expected_file = os.path.join(self.data_directory, str(self.name + self.extension))
         # if it's not there, throw an error - might just not be finished... maybe change to distinguish(?)
+
         if not os.path.isfile(expected_file):
+            queue_jobs = []
             job = 'ranker_jobs/RANK_' + self.name + '.sh'
             output = glob.glob(str(job + '.o*'))
             print(output)
-            if not output:
-                remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
-                submission_string = ' '.join([
-                    remote_sub_command,
-                    '"',
-                    'qstat -r',
-                    '"'
-                ])
 
-                submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
-                                              stderr=subprocess.PIPE)
-                out, err = submission.communicate()
-                queue_jobs = []
-                output = (out.decode('ascii').split('\n'))
-                for line in output:
-                    if 'Full jobname' in line:
-                        jobname = line.split()[-1]
-                        queue_jobs.append(jobname)
 
-                if job not in queue_jobs:
-                    cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
-                                                  job_script=job.replace('ranker_jobs/', ''))
-                    raise Exception(
-                        'The job had no output, and was not found to be running in the queue. The job has been '
-                        'resubmitted. Will check again later!')
+            remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
+            submission_string = ' '.join([
+                remote_sub_command,
+                '"',
+                'qstat -r',
+                '"'
+            ])
 
-            if job not in queue_jobs:
+            submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE)
+            out, err = submission.communicate()
+
+            output_queue = (out.decode('ascii').split('\n'))
+            print(output_queue)
+            for line in output_queue:
+                if 'Full jobname' in line:
+                    jobname = line.split()[-1]
+                    queue_jobs.append(jobname)
+            print(queue_jobs)
+            if job.replace('ranker_jobs/', '') not in queue_jobs:
                 cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
                                               job_script=job.replace('ranker_jobs/', ''))
-                raise Exception(
+                print(
                     'The job had no output, and was not found to be running in the queue. The job has been '
                     'resubmitted. Will check again later!')
+            if not queue_jobs:
+                raise Exception('.mat file not found for ' + str(
+                    self.name) + '... something went wrong in ranker or job is still running')
+            # if job not in queue_jobs:
+            #     cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
+            #                                   job_script=job.replace('ranker_jobs/', ''))
+            #     print(
+            #         'The job had no output, and was not found to be running in the queue. The job has been '
+            #         'resubmitted. Will check again later!')
 
-            raise Exception('.mat file not found for ' + str(self.name) + '... something went wrong in ranker or job is still running')
-        # message text for the email
-        message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
-        
+        if os.path.isfile(expected_file):
+            # message text for the email
+            message_text = r'''This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
+            
 I'm just letting you know that the plate %s has been successfully ranked. You can now view the plate in TeXRank. To do this:
 
     1. Go to a windows machine (eurgh... windows) or use tserver
@@ -105,23 +111,23 @@ I'm just letting you know that the plate %s has been successfully ranked. You ca
     7. Celebrate the genius of Rachael
     
 Have fun! :)''' % (' '.join(str(self.name).split('_')), ' '.join(str(self.name).split('_')))
-        # write the message to a txt file
-        with open(os.path.join('messages', str(self.name + '.txt')), 'w') as f:
-            f.write(message_text)
-        # open the message as read
-        fp = open(os.path.join('messages', str(self.name + '.txt')), 'r')
-        # read with email package
-        msg = MIMEText(fp.read())
-        fp.close()
-        # set email subject, to, from
-        msg['Subject'] = str('Ranker: ' + self.name + ' has been ranked!')
-        msg['From'] = 'formulatrix-pipe'
-        msg['To'] = ','.join(self.emails)
-        # use localhost as email server
-        s = smtplib.SMTP('localhost')
-        # send the email to everyone
-        s.sendmail(msg['From'], self.emails, msg.as_string())
-        s.quit()
+            # write the message to a txt file
+            with open(os.path.join('messages', str(self.name + '.txt')), 'w') as f:
+                f.write(message_text)
+            # open the message as read
+            fp = open(os.path.join('messages', str(self.name + '.txt')), 'r')
+            # read with email package
+            msg = MIMEText(fp.read())
+            fp.close()
+            # set email subject, to, from
+            msg['Subject'] = str('Ranker: ' + self.name + ' has been ranked!')
+            msg['From'] = 'formulatrix-pipe'
+            msg['To'] = ','.join(self.emails)
+            # use localhost as email server
+            s = smtplib.SMTP('localhost')
+            # send the email to everyone
+            s.sendmail(msg['From'], self.emails, msg.as_string())
+            s.quit()
 
 
 class RunRanker(luigi.Task):
