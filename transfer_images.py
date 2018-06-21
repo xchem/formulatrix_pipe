@@ -93,7 +93,7 @@ class TransferImages(luigi.Task):
         for i in range(0, len(results['PlateID'])):
             # construct expected filepath on remote storage from info gathered from RockMaker DB
             remote_filepath = '\\'.join(['WellImages',
-                                         str(results['PlateID'][i])[-3:],
+                                         str(int(str(results['PlateID'][i])[-3:])),
                                          str('plateID_' + str(results['PlateID'][i])),
                                          str('batchID_' + str(results['BatchID'][i])),
                                          str('wellNum_' + str(results['WellNum'][i])),
