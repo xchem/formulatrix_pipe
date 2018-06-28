@@ -27,7 +27,7 @@ class SmbOperations:
     def list_files(self, remote_directory):
         # list the files in a remote directory (specified)
         retrieve_command = ' '.join(['-c', '"', 'ls', remote_directory, '"'])
-
+        print(' '.join([self.connect_string, retrieve_command]))
         process = subprocess.Popen(' '.join([self.connect_string, retrieve_command]),
                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

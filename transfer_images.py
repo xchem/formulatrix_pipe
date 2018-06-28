@@ -1,17 +1,18 @@
 import luigi
-import os
+import os, shutil
 import pandas
 from smb import SmbOperations
 from get_barcodes import *
 from config_classes import ImageTransferConfig
+import glob
 
 
 class TransferImage(luigi.Task):
     # options for connection defined in luigi.config
-    password = ImageTransferConfig().password
-    username = ImageTransferConfig().username
-    machine = ImageTransferConfig().machine
-    options = ImageTransferConfig().options
+    # password = ImageTransferConfig().password
+    # username = ImageTransferConfig().username
+    # machine = ImageTransferConfig().machine
+    # options = ImageTransferConfig().options
     # ld = local dir, lf = local file, rd = remote dir
     rd = luigi.Parameter()
     lf = luigi.Parameter()
@@ -25,42 +26,52 @@ class TransferImage(luigi.Task):
 
     def run(self):
         # connect to the smbclient
-        smbobj = SmbOperations(username=self.username, password=self.password, machine=self.machine,
-                               options=self.options)
-        # make sure that the connection is working
-        connection = smbobj.test_connection()
+        # smbobj = SmbOperations(username=self.username, password=self.password, machine=self.machine,
+        #                        options=self.options)
+        # # make sure that the connection is working
+        # connection = smbobj.test_connection()
+        #
+        # if connection:
+        #     # pattern for prefix of file name eg. drop 1 = d1_*
+        #     pattern = str('d' + self.drop_num)
+        #     # get a list of files in the remote target directory
+        #     out_list = smbobj.list_files(self.rd)
+        #     print(out_list)
+        #     if not out_list:
+        #         raise Exception('FUCK!')
 
-        if connection:
-            # pattern for prefix of file name eg. drop 1 = d1_*
-            pattern = str('d' + self.drop_num)
-            # get a list of files in the remote target directory
-            out_list = smbobj.list_files(self.rd)
-            for file in out_list:
-                # get the effective focus image (denoted by _ef) for the target drop (pattern from above)
-                if '_ef.jpg' in file and pattern in file:
-                    remote_filename = file
-                    # get the remote file and check that it has transferred successfully
-                    success = smbobj.get_file(local_directory=self.ld, local_filename=self.lf, remote_directory=self.rd,
-                                              remote_filename=remote_filename)
+        file_list = glob.glob(str(self.rd + '/*'))
+        print(file_list)
+        pattern = str('d' + self.drop_num)
 
-                    if success:
-                        print(str('Remote File ' + remote_filename + ' copied to (local) '
-                                  + os.path.join(self.ld, self.lf)))
-        # Throw an error if no connection made
-        else:
-            raise Exception('Unable to connect to smbclient, make sure you are running on the correct machine!')
+        for file in file_list:
+            # get the effective focus image (denoted by _ef) for the target drop (pattern from above)
+            if '_ef.jpg' in file and pattern in file:
+                remote_filename = file
+                shutil.copy(os.path.join(self.rd, remote_filename), os.path.join(self.ld, self.lf))
+                # get the remote file and check that it has transferred successfully
+                # success = smbobj.get_file(local_directory=self.ld, local_filename=self.lf, remote_directory=self.rd,
+                #                           remote_filename=remote_filename)
+                #
+                # if success:
+                #     print(str('Remote File ' + remote_filename + ' copied to (local) '
+                #               + os.path.join(self.ld, self.lf)))
+    # Throw an error if no connection made
+    # else:
+    #     raise Exception('Unable to connect to smbclient, make sure you are running on the correct machine!')
 
 
 class TransferImages(luigi.Task):
-    password = ImageTransferConfig().password
-    username = ImageTransferConfig().username
-    machine = ImageTransferConfig().machine
-    options = ImageTransferConfig().options
+    # password = ImageTransferConfig().password
+    # username = ImageTransferConfig().username
+    # machine = ImageTransferConfig().machine
+    # options = ImageTransferConfig().options
     barcode = luigi.Parameter()
     # csv file from GetBarcodeInfo
     csv_file = luigi.Parameter()
     # 2drop or 3drop
     plate_type = luigi.Parameter()
+    mount_path = luigi.Parameter('/mnt/rockimager/rockimager/RockMakerStorage/WellImages')
 
     def output(self):
         # read the csv file output from GetBarcodeInfo
@@ -86,19 +97,33 @@ class TransferImages(luigi.Task):
         rd = []
         results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
 
+
         # make sure the number of images detected is divisible by 96 (i.e. the whole plate has been imaged)
         if len(results['PlateID'])/96 != int(len(results['PlateID'])/96):
             raise Exception('Number of images not divisible by 96... some images missing?')
 
         for i in range(0, len(results['PlateID'])):
             # construct expected filepath on remote storage from info gathered from RockMaker DB
-            remote_filepath = '\\'.join(['WellImages',
-                                         str(int(str(results['PlateID'][i])[-3:])),
-                                         str('plateID_' + str(results['PlateID'][i])),
-                                         str('batchID_' + str(results['BatchID'][i])),
-                                         str('wellNum_' + str(results['WellNum'][i])),
-                                         str('profileID_' + str(results['ProfileID'][i])), '\\'
-                                         ])
+
+            mounted_path = os.path.join(self.mount_path,
+                                        str(int(str(results['PlateID'][i])[-3:])),
+                                        str('plateID_' + str(results['PlateID'][i])),
+                                        str('batchID_' + str(results['BatchID'][i])),
+                                        str('wellNum_' + str(results['WellNum'][i])),
+                                        str('profileID_' + str(results['ProfileID'][i]))
+                                        )
+
+            print(mounted_path)
+
+            # remote_filepath = '\\'.join(['rockimager', 'RockMakerStorage', 'WellImages',
+            #                              str(int(str(results['PlateID'][i])[-3:])),
+            #                              str('plateID_' + str(results['PlateID'][i])),
+            #                              str('batchID_' + str(results['BatchID'][i])),
+            #                              str('wellNum_' + str(results['WellNum'][i])),
+            #                              str('profileID_' + str(results['ProfileID'][i])), '\\'
+            #                              ])
+            #
+            # print(remote_filepath)
 
             imager_name = results['ImagerName'][i]
             num = format(int(results['WellColNum'][[i]]), '02d')
@@ -116,7 +141,7 @@ class TransferImages(luigi.Task):
 
             ld.append(local_filepath)
             lf.append(local_filename)
-            rd.append(remote_filepath)
+            rd.append(mounted_path)
             drop_num.append(drop)
         # run each image transfer as a separate task (above)
         return [TransferImage(ld=ld, lf=lf, rd=rd, drop_num=drop) for (ld, lf, rd, drop) in list(zip(ld, lf, rd,
