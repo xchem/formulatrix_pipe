@@ -9,7 +9,7 @@ def submit_job(job_directory, job_script, remote_sub_command='ssh -t uzw12877@cs
         '"',
         'cd',
         job_directory,
-        '; module load global/cluster >>/dev/null 2>&1; qsub',
+        '; module load global/cluster >>/dev/null 2>&1; qsub -q medium.q ',
         job_script,
         '"'
     ])
