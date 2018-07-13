@@ -7,7 +7,7 @@ from get_barcodes import GetPlateTypes
 from transfer_images import TransferImages
 import smtplib
 from email.mime.text import MIMEText
-
+import time
 
 class BatchCheckRanker(luigi.Task):
 
@@ -55,40 +55,42 @@ class CheckRanker(luigi.Task):
         # if it's not there, throw an error - might just not be finished... maybe change to distinguish(?)
 
         if not os.path.isfile(expected_file):
-            queue_jobs = []
-            job = 'ranker_jobs/RANK_' + self.name + '.sh'
-            output = glob.glob(str(job + '.o*'))
-            print(output)
+            time.sleep(5)
+            if not os.path.isfile(expected_file):
+                queue_jobs = []
+                job = 'ranker_jobs/RANK_' + self.name + '.sh'
+                output = glob.glob(str(job + '.o*'))
+                print(output)
 
 
-            remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
-            submission_string = ' '.join([
-                remote_sub_command,
-                '"',
-                'qstat -r',
-                '"'
-            ])
+                remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
+                submission_string = ' '.join([
+                    remote_sub_command,
+                    '"',
+                    'qstat -r',
+                    '"'
+                ])
 
-            submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE)
-            out, err = submission.communicate()
+                submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
+                                              stderr=subprocess.PIPE)
+                out, err = submission.communicate()
 
-            output_queue = (out.decode('ascii').split('\n'))
-            print(output_queue)
-            for line in output_queue:
-                if 'Full jobname' in line:
-                    jobname = line.split()[-1]
-                    queue_jobs.append(jobname)
-            print(queue_jobs)
-            if job.replace('ranker_jobs/', '') not in queue_jobs:
-                cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
-                                              job_script=job.replace('ranker_jobs/', ''))
-                print(
-                    'The job had no output, and was not found to be running in the queue. The job has been '
-                    'resubmitted. Will check again later!')
-            if not queue_jobs:
-                raise Exception('.mat file not found for ' + str(
-                    self.name) + '... something went wrong in ranker or job is still running')
+                output_queue = (out.decode('ascii').split('\n'))
+                print(output_queue)
+                for line in output_queue:
+                    if 'Full jobname' in line:
+                        jobname = line.split()[-1]
+                        queue_jobs.append(jobname)
+                print(queue_jobs)
+                if job.replace('ranker_jobs/', '') not in queue_jobs:
+                    cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
+                                                  job_script=job.replace('ranker_jobs/', ''))
+                    print(
+                        'The job had no output, and was not found to be running in the queue. The job has been '
+                        'resubmitted. Will check again later!')
+                if not queue_jobs:
+                    raise Exception('.mat file not found for ' + str(
+                        self.name) + '... something went wrong in ranker or job is still running')
             # if job not in queue_jobs:
             #     cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
             #                                   job_script=job.replace('ranker_jobs/', ''))
