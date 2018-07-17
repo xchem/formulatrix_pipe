@@ -52,11 +52,15 @@ class GetPlateTypes(luigi.Task):
 
             # For each plate type, find all of the relevant barcodes
             c.execute("SELECT Barcode FROM Plate " \
+                      "INNER JOIN ExperimentPlate ep ON ep.PlateID = Plate.ID " \
+                      "INNER JOIN ImagingTask it ON it.ExperimentPlateID = ep.ID " \
                       "INNER JOIN TreeNode as TN1 ON Plate.TreeNodeID = TN1.ID " \
                       "INNER JOIN TreeNode as TN2 ON TN1.ParentID = TN2.ID " \
                       "INNER JOIN TreeNode as TN3 ON TN2.ParentID = TN3.ID " \
                       "INNER JOIN TreeNode as TN4 ON TN3.ParentID = TN4.ID " \
-                      "where TN4.Name='Xchem' AND TN3.Name like %s", (str('%' + plate + '%'),))
+                      "where TN4.Name='Xchem' AND TN3.Name like %s " \
+                      "and it.DateImaged >= Convert(datetime, DATEADD(DD, -3, GETDATE()))",
+                      (str('%' + plate + '%'),))
 
             rows = c.fetchall()
             for row in rows:

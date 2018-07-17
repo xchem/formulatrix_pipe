@@ -10,7 +10,7 @@ class StartPipe(luigi.Task):
 
     def requires(self):
         now = dt.datetime.now()
-        ago = now - dt.timedelta(minutes=5)
+        ago = now - dt.timedelta(minutes=15)
         directories = ['barcodes_2drop', 'barcodes_3drop']
         for directory in directories:
             for root, dirs, files in os.walk(os.path.join(os.getcwd(), directory)):
