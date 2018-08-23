@@ -2,7 +2,7 @@ import subprocess
 import os
 
 
-def submit_job(job_directory, job_script, remote_sub_command='ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk', max_jobs=100):
+def submit_job(job_directory, job_script, remote_sub_command='ssh -tt uzw12877@nx.diamond.ac.uk', max_jobs=100):
 
     submission_string = ' '.join([
         remote_sub_command,

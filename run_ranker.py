@@ -63,7 +63,7 @@ class CheckRanker(luigi.Task):
                 print(output)
 
 
-                remote_sub_command = 'ssh -t uzw12877@cs04r-sc-serv-38.diamond.ac.uk'
+                remote_sub_command = 'ssh -tt uzw12877@nx.diamond.ac.uk'
                 submission_string = ' '.join([
                     remote_sub_command,
                     '"',
