@@ -13,3 +13,8 @@ class RockMakerDBConfig(luigi.Config):
     database = luigi.Parameter()
     username = luigi.Parameter()
     password = luigi.Parameter()
+
+
+class SentryConfig(luigi.Config):
+    key = luigi.Parameter()
+    ident = luigi.Parameter()
