@@ -64,6 +64,8 @@ class GetPlateTypes(luigi.Task):
 
             rows = c.fetchall()
             for row in rows:
+                if plate == 'Mitegen_insitu1':
+                    continue
                 barcodes.append(str(row[0]))
                 # translate the name from RockMaker (UI) strange folders to 2drop or 3drop (in transfer parameter)
                 if plate in self.translate.keys():
