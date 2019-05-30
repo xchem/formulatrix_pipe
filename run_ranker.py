@@ -9,6 +9,7 @@ import smtplib
 from email.mime.text import MIMEText
 import time
 
+
 class BatchCheckRanker(luigi.Task):
 
     def output(self):
@@ -36,9 +37,7 @@ class CheckRanker(luigi.Task):
     emails = luigi.Parameter(default=['rachael.skyner@diamond.ac.uk',
                                       'anthony.aimon@diamond.ac.uk',
                                       'jose.brandao-neto@diamond.ac.uk',
-                                      'patrick.collins@diamond.ac.uk',
                                       'alice.douangamath@diamond.ac.uk',
-                                      'richard.gillams@diamond.ac.uk',
                                       'romain.talon@diamond.ac.uk',
                                       'ailsa.powell@diamond.ac.uk'])
 
@@ -91,12 +90,6 @@ class CheckRanker(luigi.Task):
                 if not queue_jobs:
                     raise Exception('.mat file not found for ' + str(
                         self.name) + '... something went wrong in ranker or job is still running')
-            # if job not in queue_jobs:
-            #     cluster_submission.submit_job(job_directory=os.path.join(os.getcwd(), 'ranker_jobs'),
-            #                                   job_script=job.replace('ranker_jobs/', ''))
-            #     print(
-            #         'The job had no output, and was not found to be running in the queue. The job has been '
-            #         'resubmitted. Will check again later!')
 
         if os.path.isfile(expected_file):
             # message text for the email
@@ -158,7 +151,8 @@ class RunRanker(luigi.Task):
             'RI1000-0276_2drop': glob.glob('RI1000-0276-2drop*.mat'),
             'RI1000-0276_3drop': glob.glob('RI1000-0276-3drop*.mat'),
             'RI1000-0082_2drop': glob.glob('RI1000-0082-2drop*.mat'),
-            'RI1000-0082_3drop': glob.glob('RI1000-0082-3drop*.mat')
+            'RI1000-0082_3drop': glob.glob('RI1000-0082-3drop*.mat'),
+            'RI1000-0276_mitegen': glob.glob('RI1000-0276-MiTInSitu*.mat')
         }
         # define what we want to lookup in the above dict
         lookup_string = str(self.imager + '_' + self.plate_type)

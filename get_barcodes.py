@@ -14,7 +14,8 @@ class GetPlateTypes(luigi.Task):
     username = RockMakerDBConfig().username
     password = RockMakerDBConfig().password
     # this translates the directory names in RockMaker to names for the pipeline
-    translate = {'SWISSci_2drop':'2drop', 'SWISSci_3Drop':'3drop', 'SWISSci_3drop':'3drop'}
+    translate = {'SWISSci_2drop': '2drop', 'SWISSci_3Drop': '3drop', 'SWISSci_3drop': '3drop',
+                 'Mitegen_insitu1': 'mitegen'}
 
     def output(self):
         return luigi.LocalTarget('plates.done')
@@ -64,8 +65,6 @@ class GetPlateTypes(luigi.Task):
 
             rows = c.fetchall()
             for row in rows:
-                if plate == 'Mitegen_insitu1':
-                    continue
                 barcodes.append(str(row[0]))
                 # translate the name from RockMaker (UI) strange folders to 2drop or 3drop (in transfer parameter)
                 if plate in self.translate.keys():
