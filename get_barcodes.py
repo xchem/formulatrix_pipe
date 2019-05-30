@@ -14,7 +14,7 @@ class GetPlateTypes(luigi.Task):
     username = RockMakerDBConfig().username
     password = RockMakerDBConfig().password
     # this translates the directory names in RockMaker to names for the pipeline
-    translate = {'SWISSci_2drop':'2drop', 'SWISSci_3Drop':'3drop'}
+    translate = {'SWISSci_2drop':'2drop', 'SWISSci_3Drop':'3drop', 'SWISSci_3drop':'3drop'}
 
     def output(self):
         return luigi.LocalTarget('plates.done')
