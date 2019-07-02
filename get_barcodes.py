@@ -65,10 +65,11 @@ class GetPlateTypes(luigi.Task):
 
             rows = c.fetchall()
             for row in rows:
-                barcodes.append(str(row[0]))
+                
                 # translate the name from RockMaker (UI) strange folders to 2drop or 3drop (in transfer parameter)
                 if plate in self.translate.keys():
                     plates.append(self.translate[plate])
+                    barcodes.append(str(row[0]))
                 
                 #else:
                     #raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
