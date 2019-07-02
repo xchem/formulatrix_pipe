@@ -69,9 +69,9 @@ class GetPlateTypes(luigi.Task):
                 # translate the name from RockMaker (UI) strange folders to 2drop or 3drop (in transfer parameter)
                 if plate in self.translate.keys():
                     plates.append(self.translate[plate])
-                else:
-                    # throw an exception if there's no translation - means someone has added a new plate type
-                    raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
+                
+                #else:
+                    #raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
         # get all of the relevant info for every barcode (below)
         yield [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
         yield [TransferImages(barcode=barcode, plate_type=plate_type,

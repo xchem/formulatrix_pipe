@@ -39,7 +39,8 @@ class CheckRanker(luigi.Task):
                                       'jose.brandao-neto@diamond.ac.uk',
                                       'alice.douangamath@diamond.ac.uk',
                                       'romain.talon@diamond.ac.uk',
-                                      'ailsa.powell@diamond.ac.uk'])
+                                      'ailsa.powell@diamond.ac.uk',
+                                      'louise.dunnett@diamond.ac.uk'])
 
     def requires(self):
         pass
@@ -152,7 +153,8 @@ class RunRanker(luigi.Task):
             'RI1000-0276_3drop': glob.glob('RI1000-0276-3drop*.mat'),
             'RI1000-0082_2drop': glob.glob('RI1000-0082-2drop*.mat'),
             'RI1000-0082_3drop': glob.glob('RI1000-0082-3drop*.mat'),
-            'RI1000-0276_mitegen': glob.glob('RI1000-0276-MiTInSitu*.mat')
+            'RI1000-0276_mitegen': glob.glob('RI1000-0276-MiTInSitu*.mat'),
+            'RI1000-0082_mitegen': glob.glob('RI1000-0082-MiTInSitu*.mat')
         }
         # define what we want to lookup in the above dict
         lookup_string = str(self.imager + '_' + self.plate_type)
@@ -160,8 +162,8 @@ class RunRanker(luigi.Task):
         if lookup_string in lookup.keys():
             mat_files = lookup[lookup_string]
         else:
-            # raise exception if the lookup key is not defined (my fault)
-            raise Exception('Either mat files do not exist, or are not defined in the lookup')
+            mat_files = None # raise exception if the lookup key is not defined (my fault)
+           # iraise Exception('Either mat files do not exist, or are not defined in the lookup')
         if not mat_files:
             # raise exception if there are no mat files (your fault)
             raise Exception('Imager mat files not found!')

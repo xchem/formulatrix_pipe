@@ -34,8 +34,9 @@ def write_job(execute_directory, job_directory, job_filename, job_name, job_comm
     directory = os.getcwd()
     os.chdir(job_directory)
     job_script = '''#!/bin/bash
-    cd %s
-    %s
+cd %s
+export MCR_CACHE_ROOT=$( mktemp -d )
+%s
     ''' % (execute_directory, job_command)
 
     output = os.path.join(job_directory, job_filename)
