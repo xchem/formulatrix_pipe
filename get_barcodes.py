@@ -65,7 +65,7 @@ class GetPlateTypes(luigi.Task):
 
             rows = c.fetchall()
             for row in rows:
-                
+
                 # translate the name from RockMaker (UI) strange folders to 2drop or 3drop (in transfer parameter)
                 if plate in self.translate.keys():
                     plates.append(self.translate[plate])
@@ -78,7 +78,7 @@ class GetPlateTypes(luigi.Task):
         yield [TransferImages(barcode=barcode, plate_type=plate_type,
                               csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(plate_type)),
                                                     str(barcode + '.csv')))
-               for (plate_type, barcode) in list(zip(plates,barcodes))]
+               for (plate_type, barcode) in list(zip(plates, barcodes))]
 
     def run(self):
         with self.output().open('w') as f:

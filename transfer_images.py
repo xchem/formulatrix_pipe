@@ -37,8 +37,6 @@ class TransferImage(luigi.Task):
         #     # get a list of files in the remote target directory
         #     out_list = smbobj.list_files(self.rd)
         #     print(out_list)
-        #     if not out_list:
-        #         raise Exception('FUCK!')
 
         file_list = glob.glob(str(self.rd + '/*'))
         print(file_list)
