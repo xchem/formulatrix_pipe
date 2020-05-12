@@ -74,12 +74,11 @@ class GetPlateTypes(luigi.Task):
                 #else:
                     #raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
         # get all of the relevant info for every barcode (below)
-        if barcode not in ['9557','954w', '9553']:
-            yield [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
-            yield [TransferImages(barcode=barcode, plate_type=plate_type,
-                                  csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(plate_type)),
-                                                        str(barcode + '.csv')))
-                   for (plate_type, barcode) in list(zip(plates, barcodes))]
+        yield [GetBarcodeInfo(barcode=barcode, plate_type=plate) for (barcode, plate) in list(zip(barcodes, plates))]
+        yield [TransferImages(barcode=barcode, plate_type=plate_type,
+                              csv_file=os.path.join(os.getcwd(), str('barcodes_' + str(plate_type)),
+                                                    str(barcode + '.csv')))
+               for (plate_type, barcode) in list(zip(plates, barcodes)) if barcode not in ['9557','954w', '9553']]
 
     def run(self):
         with self.output().open('w') as f:
