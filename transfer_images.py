@@ -146,8 +146,9 @@ class TransferImages(luigi.Task):
                                                                                                      drop_num))]
 
     def run(self):
-        for (date, imager) in self.dates_imagers:
-            # write the output files to show all images have been transferred
-            with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
-                                        self.plate_type + '.done'), 'w') as f:
-                f.write('')
+        if self.barcode not in ['9557','954w']:
+            for (date, imager) in self.dates_imagers:
+                # write the output files to show all images have been transferred
+                with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
+                                            self.plate_type + '.done'), 'w') as f:
+                    f.write('')
