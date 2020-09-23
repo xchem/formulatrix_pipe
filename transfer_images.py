@@ -5,6 +5,7 @@ from smb import SmbOperations
 from get_barcodes import *
 from config_classes import ImageTransferConfig
 import glob
+import warnings
 
 
 class TransferImage(luigi.Task):
@@ -66,7 +67,7 @@ class TransferImages(luigi.Task):
         drop_num = []
         rd = []
         if not os.path.isfile(self.csv_file):
-            raise Warning(f'CSV file for {self.barcode} not yet created...')
+            warnings.warn(f'CSV file for {self.barcode} not yet created...')
             return None
         results = pandas.read_csv(self.csv_file, index_col=None)
 
