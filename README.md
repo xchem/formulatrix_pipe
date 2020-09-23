@@ -29,7 +29,12 @@ To kill the daeomon and all child processes:
 
 To kick off the pipeline to run every minute, add the following line to a cronjob:
 
-```* * * * * export PATH=/dls/science/groups/i04-1/software/miniconda_3/bin:$PATH; cd /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --workers 10 >> luigi.log 2>&1```
+```* * * * * export PATH=/dls/science/groups/i04-1/software/miniconda_3/bin:$PATH; cd /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --workers 10 >> luigi.log 2>&1```  
+
+If there are problems with ``subprocess`` it could be because the cron job cannot find the right environment. In this case, adjust the cronjob to:  
+
+```* * * * * /bin/bash -l -c "export PATH=/dls/science/groups/i04-1/software/miniconda_3/bin:$PATH; source activate /dls/science/groups/i04-1/software/miniconda_3/envs/fmlx; cd /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --workers 20 >> luigi.log 2>&1"```  
+
 
 ## Configuration
 
