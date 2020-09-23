@@ -4,9 +4,9 @@ import os
 
 def submit_job(job_directory, job_script, remote_sub_command='ssh -tt uzw12877@ssh.diamond.ac.uk', max_jobs=100):
     current = os.getcwd()
-    change = '/dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe/ranker_jobs/'
-    os.chdir(change)
-    submission_string = str('/dls_sw/cluster/GE/UGE8.6.7/bin/lx-amd64/qsub -q medium.q /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe/ranker_jobs/' + job_script).split()
+    # change = '/dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe/ranker_jobs/'
+    os.chdir(job_directory)
+    submission_string = str(f'module load global/cluster; qsub -q medium.q /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe/ranker_jobs/{job_script}').split()
 
     print(submission_string)
     #os.system(submission_string)
