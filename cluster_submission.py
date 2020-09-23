@@ -2,13 +2,13 @@ import subprocess
 import os
 
 
-def submit_job(job_directory, job_script, remote_sub_command='ssh -tt uzw12877@ssh.diamond.ac.uk', max_jobs=100):
+def submit_job(job_directory, job_script, qsub_command='qsub'):
     current = os.getcwd()
     os.chdir(job_directory)
-    submission_string = f'qsub -q medium.q {job_directory}/{job_script}'
+    submission_string = f'module load global/cluster; {qsub_command} -q medium.q {job_directory}/{job_script}'
 
     print(submission_string)
-    proc = subprocess.run(submission_string.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.run(submission_string, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
     out = proc.stdout
     err = proc.stderr
 
