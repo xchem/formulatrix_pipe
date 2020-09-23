@@ -63,12 +63,10 @@ class CheckRanker(luigi.Task):
                 print(output)
 
 
-                remote_sub_command = 'ssh -tt uzw12877@nx.diamond.ac.uk'
+                remote_sub_command = 'ssh -tt uzw12877@ssh.diamond.ac.uk'
                 submission_string = ' '.join([
-                    remote_sub_command,
-                    '"',
-                    'qstat -r',
-                    '"'
+                    #remote_sub_command,
+                    '/bin/bash -c  "/dls_sw/cluster/GE/UGE8.6.7/bin/lx-amd64/qstat -r"',
                 ])
 
                 submission = subprocess.Popen(submission_string, shell=True, stdout=subprocess.PIPE,
