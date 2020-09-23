@@ -46,7 +46,7 @@ class TransferImages(luigi.Task):
     def output(self):
         if self.barcode not in ['9557','954w', '9553']:
             # read the csv file output from GetBarcodeInfo
-            results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
+            results = pandas.read_csv(self.csv_file, index_col=None)
             # separate the transfers by date - some plates may have been imaged on multiple days
             dates = results['DateImaged']
             imagers = results['ImagerName']
@@ -67,7 +67,7 @@ class TransferImages(luigi.Task):
             ld = []
             drop_num = []
             rd = []
-            results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
+            results = pandas.read_csv(self.csv_file, index_col=None)
 
 
             # make sure the number of images detected is divisible by 96 (i.e. the whole plate has been imaged)
