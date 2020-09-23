@@ -44,7 +44,7 @@ class TransferImages(luigi.Task):
     mount_path = luigi.Parameter('/mnt/rockimager/rockimager/RockMakerStorage/WellImages')
 
     def output(self):
-        if self.barcode not in ['9557','954w']:
+        if self.barcode not in ['9557','954w', '9553']:
             # read the csv file output from GetBarcodeInfo
             results = pandas.DataFrame.from_csv(self.csv_file, index_col=None)
             # separate the transfers by date - some plates may have been imaged on multiple days
@@ -62,7 +62,7 @@ class TransferImages(luigi.Task):
                                             self.plate_type + '.done'))
 
     def requires(self):
-        if self.barcode not in ['9557','954w']:
+        if self.barcode not in ['9557','954w', '9553']:
             lf = []
             ld = []
             drop_num = []
@@ -108,7 +108,7 @@ class TransferImages(luigi.Task):
                                                                                                          drop_num))]
 
     def run(self):
-        if self.barcode not in ['9557','954w']:
+        if self.barcode not in ['9557','954w', '9553']:
             for (date, imager) in self.dates_imagers:
                 # write the output files to show all images have been transferred
                 with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
