@@ -45,6 +45,9 @@ class TransferImages(luigi.Task):
     mount_path = luigi.Parameter('/mnt/rockimager/rockimager/RockMakerStorage/WellImages')
 
     def output(self):
+        if not os.path.isfile(self.csv_file):
+            warnings.warn(f'CSV file for {self.barcode} not yet created...')
+            return None
         # read the csv file output from GetBarcodeInfo
         results = pandas.read_csv(self.csv_file, index_col=None)
         # separate the transfers by date - some plates may have been imaged on multiple days
