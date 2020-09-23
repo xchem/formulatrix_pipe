@@ -38,9 +38,10 @@ class CheckRanker(luigi.Task):
                                       'anthony.aimon@diamond.ac.uk',
                                       'jose.brandao-neto@diamond.ac.uk',
                                       'alice.douangamath@diamond.ac.uk',
-                                      'romain.talon@diamond.ac.uk',
+                                      'daren.fearon@diamond.ac.uk',
                                       'ailsa.powell@diamond.ac.uk',
-                                      'louise.dunnett@diamond.ac.uk'])
+                                      'louise.dunnett@diamond.ac.uk',
+                                      'tyler.gorrie-stone@diamond.ac.uk'])
 
     def requires(self):
         pass
