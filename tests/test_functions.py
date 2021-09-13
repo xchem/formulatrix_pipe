@@ -1,6 +1,7 @@
 import luigi
 import os
 import subprocess
+import getpass
 
 
 def run_luigi_worker(task):
@@ -18,8 +19,10 @@ def kill_job(directory, id_file):
     with open(os.path.join(directory, id_file), 'r') as f:
         job_id = int(f.readline())
 
+    cuser = getpass.getuser()
+
     # cancel cluster job so that test of sh can be run locally
-    process = subprocess.Popen(str('ssh -t uzw12877@nx.diamond.ac.uk '
+    process = subprocess.Popen(str('ssh -t ' + cuser + '@nx.diamond.ac.uk '
                                    '"module load global/cluster >>/dev/null 2>&1; qdel ' + str(job_id) + '"'),
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
