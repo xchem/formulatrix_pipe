@@ -36,13 +36,12 @@ class CheckRanker(luigi.Task):
     extension = luigi.Parameter(default='.mat')
     # a list of people to email when a plate has been ranked
     emails = luigi.Parameter(default=['rachael.skyner@diamond.ac.uk',
-                                      'anthony.aimon@diamond.ac.uk',
                                       'jose.brandao-neto@diamond.ac.uk',
-                                      'alice.douangamath@diamond.ac.uk',
                                       'daren.fearon@diamond.ac.uk',
                                       'ailsa.powell@diamond.ac.uk',
                                       'louise.dunnett@diamond.ac.uk',
-                                      'tyler.gorrie-stone@diamond.ac.uk'])
+                                      'tyler.gorrie-stone@diamond.ac.uk',
+                                      'felicity.bertram@diamond.ac.uk'])
 
     def requires(self):
         pass
@@ -165,7 +164,7 @@ class RunRanker(luigi.Task):
             mat_files = lookup[lookup_string]
         else:
             mat_files = None # raise exception if the lookup key is not defined (my fault)
-           # iraise Exception('Either mat files do not exist, or are not defined in the lookup')
+           # raise Exception('Either mat files do not exist, or are not defined in the lookup')
         if not mat_files:
             # raise exception if there are no mat files (your fault)
             raise Exception('Imager mat files not found!')
