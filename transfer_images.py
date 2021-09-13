@@ -29,6 +29,8 @@ class TransferImage(luigi.Task):
             # get the effective focus image (denoted by _ef) for the target drop (pattern from above)
             if '_ef.jpg' in file and pattern in file:
                 remote_filename = file
+                if not os.path.isfile(remote_filename):
+                    raise Exception(f'Expected image file {remote_filename} does not exist. Ask staff to check plate has imaged correctly')
                 shutil.copy(os.path.join(self.rd, remote_filename), os.path.join(self.ld, self.lf))
 
 
