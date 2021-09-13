@@ -7,6 +7,7 @@ from sentry_sdk import configure_scope
 
 # from get_barcodes import GetPlateTypes
 from run_ranker import FindPlates, BatchCheckRanker
+from transfer_images import CheckImageDirs
 import datetime as dt
 from config_classes import SentryConfig
 
@@ -48,6 +49,7 @@ class StartPipe(luigi.Task):
                         os.remove(os.path.join(root, fname))
 
         yield FindPlates()
+        yield CheckImageDirs()
         yield BatchCheckRanker()
 
     def run(self):

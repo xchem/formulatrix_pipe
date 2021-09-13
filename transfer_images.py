@@ -168,4 +168,24 @@ class TransferImages(luigi.Task):
 # placeholder: check each directory and see if a new image has appeared in the last 20 minutes. If not, and you can't
 # divide no. of images by 96, then skip everything for that plate (add to an exception list?)
 class CheckImageDirs(luigi.Task):
-    pass
+    images_dir = luigi.Parameter(default=os.path.join(os.getcwd(), 'SubwellImages'))
+    exception_list_file = luigi.Parameter()
+    def output(self):
+        pass
+    def requires(self):
+        pass
+    def run(self):
+        dirlst = next(os.walk(self.images_dir))[1]
+        for d in dirlst:
+            flist = glob.glob(f'{d}/*.jpg')
+            latest_file = max(flist, key=os.path.getctime)
+            ftime = os.path.getctime(latest_file)
+            curtime = time.time()
+            # time in secs
+            tdiff = curtime-ftime
+            # limit = 20 minutes
+            if tdiff > 1200:
+                # do something
+                pass
+
+
