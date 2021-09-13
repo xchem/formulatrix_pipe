@@ -192,7 +192,8 @@ class FindPlates(luigi.Task):
         # raise an error if there's no SubwellImages dir
         if not os.path.isdir(os.path.join(os.getcwd(), self.subwell_directory)):
             print(os.getcwd())
-            raise Exception('No Subwell Directory found!')
+            os.mkdirs(os.path.join(os.getcwd(), self.subwell_directory))
+            # raise Exception('No Subwell Directory found!')
         # Find the names of all plates - the subdirectories in SubwellImages
         plate_directories = [x[0] for x in os.walk(os.path.join(os.getcwd(), self.subwell_directory))
                   if os.path.join(os.getcwd(), 'SubwellImages') not in x]
