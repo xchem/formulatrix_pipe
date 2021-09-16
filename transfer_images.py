@@ -149,18 +149,18 @@ class TransferImages(luigi.Task):
             for (date, imager) in self.dates_imagers:
                 # write the output files to show all images have been transferred
                 with open(
-                    str(
-                        "transfers/"
-                        + self.barcode
-                        + "_"
-                        + date
-                        + "_"
-                        + imager
-                        + "_"
-                        + self.plate_type
-                        + ".done"
-                    ),
-                    "w",
+                        str(
+                            "transfers/"
+                            + self.barcode
+                            + "_"
+                            + date
+                            + "_"
+                            + imager
+                            + "_"
+                            + self.plate_type
+                            + ".done"
+                        ),
+                        "w",
                 ) as f:
                     f.write("")
 
@@ -169,23 +169,31 @@ class TransferImages(luigi.Task):
 # divide no. of images by 96, then skip everything for that plate (add to an exception list?)
 class CheckImageDirs(luigi.Task):
     images_dir = luigi.Parameter(default=os.path.join(os.getcwd(), 'SubwellImages'))
-    exception_list_file = luigi.Parameter()
+    exception_list_file = luigi.Parameter(default=os.path.join(os.getcwd(), 'blacklist.txt'))
+
     def output(self):
         pass
+
     def requires(self):
         pass
+
     def run(self):
         dirlst = next(os.walk(self.images_dir))[1]
         for d in dirlst:
+            blacklisted = open(self.exception_list_file, 'r').readlines()
+            barcode = d.split('/')[-1].split('_')[0]
+            if barcode in blacklisted:
+                continue
             flist = glob.glob(f'{d}/*.jpg')
             latest_file = max(flist, key=os.path.getctime)
             ftime = os.path.getctime(latest_file)
             curtime = time.time()
             # time in secs
-            tdiff = curtime-ftime
+            tdiff = curtime - ftime
+
             # limit = 20 minutes
             if tdiff > 1200:
-                # do something
-                pass
-
-
+                # check number of plates divisible by 96
+                if len(flist) / 96 != int(len(flist) / 96):
+                    with open(self.exception_list_file, 'w') as w:
+                        w.write(barcode + ' \n')
