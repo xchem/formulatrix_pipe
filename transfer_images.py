@@ -196,8 +196,7 @@ class CheckImageDirs(luigi.Task):
         dirlst = next(os.walk(self.images_dir))[1]
         for d in dirlst:
             full_d = os.path.join(self.images_dir, d)
-            blacklisted = open(self.exception_list_file, 'r').readlines()
-            print(backlisted)
+            blacklisted = [x.rstrip() for x in open(self.exception_list_file, 'r').readlines()]
             barcode = d.split('/')[-1].split('_')[0]
             if barcode in blacklisted:
                 continue
