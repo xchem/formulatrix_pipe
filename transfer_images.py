@@ -1,8 +1,7 @@
 import luigi
 import os, shutil
 import pandas
-from smb import SmbOperations
-from get_barcodes import *
+# from get_barcodes import *
 from config_classes import ImageTransferConfig
 import glob
 import warnings

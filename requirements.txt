@@ -1,3 +1,4 @@
 luigi
 pytds (pip)
 pandas
+sentry_sdk
