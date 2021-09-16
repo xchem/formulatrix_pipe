@@ -197,11 +197,11 @@ class CheckImageDirs(luigi.Task):
         for d in dirlst:
             full_d = os.path.join(self.images_dir, d)
             blacklisted = open(self.exception_list_file, 'r').readlines()
+            print(backlisted)
             barcode = d.split('/')[-1].split('_')[0]
             if barcode in blacklisted:
                 continue
             flist = glob.glob(f'{full_d}/*.jpg')
-            print(flist)
             latest_file = max(flist, key=os.path.getctime)
             ftime = os.path.getctime(latest_file)
             curtime = time.time()
