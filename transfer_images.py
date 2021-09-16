@@ -5,7 +5,6 @@ import pandas
 from config_classes import ImageTransferConfig
 import glob
 import warnings
-from pathlib import Path
 
 
 class TransferImage(luigi.Task):
@@ -175,8 +174,7 @@ class CheckImageDirs(luigi.Task):
         pass
 
     def requires(self):
-        if not os.path.isfile(self.exception_list_file):
-            Path(self.exception_list_file).touch()
+        pass
 
     def run(self):
         dirlst = next(os.walk(self.images_dir))[1]
