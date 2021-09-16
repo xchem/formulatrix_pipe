@@ -119,9 +119,3 @@ class TransferImages(luigi.Task):
                 with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
                                             self.plate_type + '.done'), 'w') as f:
                     f.write('')
-
-
-# placeholder: check each directory and see if a new image has appeared in the last 20 minutes. If not, and you can't
-# divide no. of images by 96, then skip everything for that plate (add to an exception list?)
-class CheckImageDirs(luigi.Task):
-    pass
