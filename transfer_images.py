@@ -4,7 +4,6 @@ import pandas
 # from get_barcodes import *
 from config_classes import ImageTransferConfig
 import glob
-import time
 import warnings
 from pathlib import Path
 
@@ -182,13 +181,11 @@ class CheckImageDirs(luigi.Task):
     def run(self):
         dirlst = next(os.walk(self.images_dir))[1]
         for d in dirlst:
-            full_d = os.path.join(self.images_dir,d)
             blacklisted = open(self.exception_list_file, 'r').readlines()
             barcode = d.split('/')[-1].split('_')[0]
             if barcode in blacklisted:
                 continue
-            flist = glob.glob(f'{full_d}/*.jpg')
-            print(flist)
+            flist = glob.glob(f'{d}/*.jpg')
             latest_file = max(flist, key=os.path.getctime)
             ftime = os.path.getctime(latest_file)
             curtime = time.time()
