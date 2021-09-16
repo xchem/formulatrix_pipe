@@ -8,7 +8,6 @@ from transfer_images import TransferImages
 import smtplib
 from email.mime.text import MIMEText
 import time
-import getpass
 
 
 class BatchCheckRanker(luigi.Task):
@@ -63,10 +62,8 @@ class CheckRanker(luigi.Task):
                 output = glob.glob(str(job + '.o*'))
                 print(output)
 
-                cuser = getpass.getuser()
 
-
-                remote_sub_command = f'ssh -tt {cuser}@ssh.diamond.ac.uk'
+                remote_sub_command = 'ssh -tt uzw12877@ssh.diamond.ac.uk'
                 submission_string = ' '.join([
                     #remote_sub_command,
                     '/bin/bash -c  "/dls_sw/cluster/GE/UGE8.6.7/bin/lx-amd64/qstat -r"',

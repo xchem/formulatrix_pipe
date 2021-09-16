@@ -35,6 +35,10 @@ class TransferImage(luigi.Task):
 
 
 class TransferImages(luigi.Task):
+    # password = ImageTransferConfig().password
+    # username = ImageTransferConfig().username
+    # machine = ImageTransferConfig().machine
+    # options = ImageTransferConfig().options
     barcode = luigi.Parameter()
     # csv file from GetBarcodeInfo
     csv_file = luigi.Parameter()
