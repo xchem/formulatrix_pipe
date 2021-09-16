@@ -218,13 +218,13 @@ class CheckImageDirs(luigi.Task):
                     # message text for the email
                     message_text = f"""This is an automated message from the formulatrix pipeline.
 
-                The plate with barcode {barcode} has been added to the blacklist. This has occured because the 
-                number of images expected could not be recovered from the image directories written to by the
-                imager. 
-                
-                You should check that the plate has imaged correctly. If it hasn't, please add a new barcode to the
-                plate and re-image it. If it has imaged correctly, please contact the pipeline administrator. They
-                will need to check what is happening."""
+The plate with barcode {barcode} has been added to the blacklist. This has occured because the 
+number of images expected could not be recovered from the image directories written to by the
+imager. 
+
+You should check that the plate has imaged correctly. If it hasn't, please add a new barcode to the
+plate and re-image it. If it has imaged correctly, please contact the pipeline administrator. They
+will need to check what is happening."""
 
                     # write the message to a txt file
                     with open(os.path.join("messages", str(f'{barcode}_warning.txt')), "w") as f:
