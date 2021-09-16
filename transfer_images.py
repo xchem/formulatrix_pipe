@@ -7,6 +7,8 @@ import glob
 import time
 import warnings
 from pathlib import Path
+import smtplib
+from email.mime.text import MIMEText
 
 
 class TransferImage(luigi.Task):
@@ -171,6 +173,17 @@ class TransferImages(luigi.Task):
 class CheckImageDirs(luigi.Task):
     images_dir = luigi.Parameter(default=os.path.join(os.getcwd(), 'SubwellImages'))
     exception_list_file = luigi.Parameter(default=os.path.join(os.getcwd(), 'blacklist.txt'))
+    emails = luigi.Parameter(
+        default=[
+            "rachael.skyner@diamond.ac.uk",
+            "jose.brandao-neto@diamond.ac.uk",
+            "daren.fearon@diamond.ac.uk",
+            "ailsa.powell@diamond.ac.uk",
+            "louise.dunnett@diamond.ac.uk",
+            "tyler.gorrie-stone@diamond.ac.uk",
+            "felicity.bertram@diamond.ac.uk",
+        ]
+    )
 
     def output(self):
         pass
@@ -182,7 +195,7 @@ class CheckImageDirs(luigi.Task):
     def run(self):
         dirlst = next(os.walk(self.images_dir))[1]
         for d in dirlst:
-            full_d = os.path.join(self.images_dir,d)
+            full_d = os.path.join(self.images_dir, d)
             blacklisted = open(self.exception_list_file, 'r').readlines()
             barcode = d.split('/')[-1].split('_')[0]
             if barcode in blacklisted:
@@ -201,3 +214,32 @@ class CheckImageDirs(luigi.Task):
                 if len(flist) / 96 != int(len(flist) / 96):
                     with open(self.exception_list_file, 'w') as w:
                         w.write(barcode + ' \n')
+
+                    # message text for the email
+                    message_text = r"""This is an automated message from the formulatrix pipeline.
+
+                The plate with barcode %s has been added to the blacklist. This has occured because the 
+                number of images expected could not be recovered from the image directories written to by the
+                imager. 
+                
+                You should check that the plate has imaged correctly. If it hasn't, please add a new barcode to the
+                plate and re-image it. If it has imaged correctly, please contact the pipeline administrator. They
+                will need to check what is happening.""" % barcode,
+
+                    # write the message to a txt file
+                    with open(os.path.join("messages", str(f'{barcode}_warning.txt')), "w") as f:
+                        f.write(message_text)
+                    # open the message as read
+                    fp = open(os.path.join("messages", str(f'{barcode}_warning.txt')), "r")
+                    # read with email package
+                    msg = MIMEText(fp.read())
+                    fp.close()
+                    # set email subject, to, from
+                    msg["Subject"] = f'WARNING: plate {barcode} has been blacklisted!'
+                    msg["From"] = "formulatrix-pipe"
+                    msg["To"] = ",".join(self.emails)
+                    # use localhost as email server
+                    s = smtplib.SMTP("localhost")
+                    # send the email to everyone
+                    s.sendmail(msg["From"], self.emails, msg.as_string())
+                    s.quit()
