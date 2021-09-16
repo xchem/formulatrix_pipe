@@ -6,6 +6,9 @@ from get_barcodes import *
 from config_classes import ImageTransferConfig
 import glob
 import warnings
+from pathlib import Path
+import smtplib
+from email.mime.text import MIMEText
 
 
 class TransferImage(luigi.Task):
@@ -118,6 +121,94 @@ class TransferImages(luigi.Task):
         else:
             for (date, imager) in self.dates_imagers:
                 # write the output files to show all images have been transferred
-                with open(str('transfers/' + self.barcode + '_' + date + '_' + imager + '_' +
-                                            self.plate_type + '.done'), 'w') as f:
-                    f.write('')
+                with open(
+                        str(
+                            "transfers/"
+                            + self.barcode
+                            + "_"
+                            + date
+                            + "_"
+                            + imager
+                            + "_"
+                            + self.plate_type
+                            + ".done"
+                        ),
+                        "w",
+                ) as f:
+                    f.write("")
+
+
+# placeholder: check each directory and see if a new image has appeared in the last 20 minutes. If not, and you can't
+# divide no. of images by 96, then skip everything for that plate (add to an exception list?)
+class CheckImageDirs(luigi.Task):
+    images_dir = luigi.Parameter(default=os.path.join(os.getcwd(), 'SubwellImages'))
+    exception_list_file = luigi.Parameter(default=os.path.join(os.getcwd(), 'blacklist.txt'))
+    emails = luigi.Parameter(
+        default=[
+            "rachael.skyner@diamond.ac.uk",
+            "jose.brandao-neto@diamond.ac.uk",
+            "daren.fearon@diamond.ac.uk",
+            "ailsa.powell@diamond.ac.uk",
+            "louise.dunnett@diamond.ac.uk",
+            "tyler.gorrie-stone@diamond.ac.uk",
+            "felicity.bertram@diamond.ac.uk",
+        ]
+    )
+
+    def output(self):
+        pass
+
+    def requires(self):
+        if not os.path.isfile(self.exception_list_file):
+            Path(self.exception_list_file).touch()
+
+    def run(self):
+        dirlst = next(os.walk(self.images_dir))[1]
+        for d in dirlst:
+            full_d = os.path.join(self.images_dir, d)
+            blacklisted = [x.rstrip() for x in open(self.exception_list_file, 'r').readlines()]
+            barcode = d.split('/')[-1].split('_')[0]
+            if barcode in blacklisted:
+                continue
+            flist = glob.glob(f'{full_d}/*.jpg')
+            latest_file = max(flist, key=os.path.getctime)
+            ftime = os.path.getctime(latest_file)
+            curtime = time.time()
+            # time in secs
+            tdiff = curtime - ftime
+
+            # limit = 20 minutes
+            if tdiff > 1200:
+                # check number of plates divisible by 96
+                if len(flist) / 96 != int(len(flist) / 96):
+                    with open(self.exception_list_file, 'w') as w:
+                        w.write(barcode + ' \n')
+
+                    # message text for the email
+                    message_text = f"""This is an automated message from the formulatrix pipeline.
+
+The plate with barcode {barcode} has been added to the blacklist. This has occured because the 
+number of images expected could not be recovered from the image directories written to by the
+imager. 
+
+You should check that the plate has imaged correctly. If it hasn't, please add a new barcode to the
+plate and re-image it. If it has imaged correctly, please contact the pipeline administrator. They
+will need to check what is happening."""
+
+                    # write the message to a txt file
+                    with open(os.path.join("messages", str(f'{barcode}_warning.txt')), "w") as f:
+                        f.write(message_text)
+                    # open the message as read
+                    fp = open(os.path.join("messages", str(f'{barcode}_warning.txt')), "r")
+                    # read with email package
+                    msg = MIMEText(fp.read())
+                    fp.close()
+                    # set email subject, to, from
+                    msg["Subject"] = f'WARNING: plate {barcode} has been blacklisted!'
+                    msg["From"] = "formulatrix-pipe"
+                    msg["To"] = ",".join(self.emails)
+                    # use localhost as email server
+                    s = smtplib.SMTP("localhost")
+                    # send the email to everyone
+                    s.sendmail(msg["From"], self.emails, msg.as_string())
+                    s.quit()
