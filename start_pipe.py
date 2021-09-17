@@ -65,6 +65,10 @@ class StartPipe(luigi.Task):
             os.remove("findplates.done")
         except:
             pass
+        try:
+            os.remove("checkdirs.done")
+        except:
+            pass
 
 
 if __name__ == "__main__":

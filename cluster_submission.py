@@ -5,7 +5,7 @@ import os
 def submit_job(job_directory, job_script, qsub_command="qsub"):
     current = os.getcwd()
     os.chdir(job_directory)
-    os.chmod(os.path.join(os.getcwd(), job_script), 777)
+    os.chmod(os.path.join(os.getcwd(), job_script), 0o777)
     submission_string = f"module load global/cluster; {qsub_command} -q medium.q {job_directory}/{job_script}"
 
     print(submission_string)

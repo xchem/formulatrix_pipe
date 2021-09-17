@@ -188,7 +188,7 @@ class CheckImageDirs(luigi.Task):
     )
 
     def output(self):
-        pass
+        return luigi.LocalTarget("checkdirs.done")
 
     def requires(self):
         if not os.path.isfile(self.exception_list_file):
@@ -244,3 +244,5 @@ will need to check what is happening."""
                     # send the email to everyone
                     s.sendmail(msg["From"], self.emails, msg.as_string())
                     s.quit()
+
+            Path(self.output()).touch()
