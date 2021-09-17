@@ -117,7 +117,7 @@ I'm just letting you know that the plate %s has been successfully ranked. You ca
 
     1. Go to a windows machine (eurgh... windows) or use tserver
     2. Open windows explorer or similar
-    3. Point explorer to \\dc.diamond.ac.uk\dls\science\groups\i04-1\software\luigi_pipeline\formulatrix_pipe
+    3. Point explorer to \\dc.diamond.ac.uk\dls\science\groups\i04-1\software\luigi_pipeline\imager_pipe
     4. Click on TeXRankE
     5. In the dropdown menu on the right, look for %s
     6. Rank your plates
