@@ -8,6 +8,7 @@ from transfer_images import TransferImages
 
 # This task kicks off the picking up of images, working backwards to find barcode info from TransferImages
 class GetPlateTypes(luigi.Task):
+    blacklist = luigi.Parameter(os.path.join(os.getcwd()), 'blacklist.txt')
     # these are all defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
@@ -26,6 +27,12 @@ class GetPlateTypes(luigi.Task):
         return luigi.LocalTarget("plates.done")
 
     def requires(self):
+
+        if os.path.isfile(self.blacklist):
+            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+        else:
+            blacklisted = ['']
+
         plate_types = []
         # connect to the RockMaker database
         conn = pytds.connect(self.server, self.database, self.username, self.password)
@@ -88,7 +95,7 @@ class GetPlateTypes(luigi.Task):
         yield [
             GetBarcodeInfo(barcode=barcode, plate_type=plate)
             for (barcode, plate) in list(zip(barcodes, plates))
-            if barcode not in ["9557", "954w", "9553", "956j", "956i", "955o", "97uh"]
+            if barcode not in blacklisted
         ]
         yield [
             TransferImages(
@@ -101,7 +108,7 @@ class GetPlateTypes(luigi.Task):
                 ),
             )
             for (plate_type, barcode) in list(zip(plates, barcodes))
-            if barcode not in ["9557", "954w", "9553", "956j", "956i", "955o", "97uh"]
+            if barcode not in blacklisted
         ]
 
     def run(self):
@@ -110,6 +117,7 @@ class GetPlateTypes(luigi.Task):
 
 
 class GetBarcodeInfo(luigi.Task):
+    blacklist = luigi.Parameter(os.path.join(os.getcwd()), 'blacklist.txt')
     # credentials to connect to RockMaker DB as defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
@@ -122,7 +130,12 @@ class GetBarcodeInfo(luigi.Task):
         pass
 
     def output(self):
-        if self.barcode not in ["9557", "954w", "9553", "97uh"]:
+        if os.path.isfile(self.blacklist):
+            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+        else:
+            blacklisted = ['']
+
+        if self.barcode not in blacklisted:
             cwd = os.getcwd()
             return luigi.LocalTarget(
                 os.path.join(
@@ -133,7 +146,13 @@ class GetBarcodeInfo(luigi.Task):
             )
 
     def run(self):
-        if self.barcode not in ["9557", "954w", "9553", "97uh"]:
+
+        if os.path.isfile(self.blacklist):
+            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+        else:
+            blacklisted = ['']
+
+        if self.barcode not in blacklisted:
             # dictionary to hold info to be written out to csv for each barcode
             results = {
                 "PlateID": [],
