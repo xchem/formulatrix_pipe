@@ -111,19 +111,16 @@ class CheckRanker(luigi.Task):
 
         if os.path.isfile(expected_file):
             # message text for the email
-            message_text = r"""This is an automated message from the formulatrix pipeline! (Hooray! Rachael did something useful!)
+            message_text = r"""This is an automated message from the formulatrix pipeline!
             
 I'm just letting you know that the plate %s has been successfully ranked. You can now view the plate in TeXRank. To do this:
 
-    1. Go to a windows machine (eurgh... windows) or use tserver
+    1. Go to a windows machine or use tserver
     2. Open windows explorer or similar
     3. Point explorer to \\dc.diamond.ac.uk\dls\science\groups\i04-1\software\luigi_pipeline\imager_pipe
     4. Click on TeXRankE
     5. In the dropdown menu on the right, look for %s
-    6. Rank your plates
-    7. Celebrate the genius of Rachael
-    
-Have fun! :)""" % (
+    6. Rank your plates""" % (
                 " ".join(str(self.name).split("_")),
                 " ".join(str(self.name).split("_")),
             )
