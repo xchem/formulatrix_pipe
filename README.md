@@ -28,7 +28,7 @@ To kill the daeomon and all child processes:
 
 To kick off the pipeline to run every minute, add the following line to a cronjob:
 
-```* * * * * /bin/bash -l -c "module load python/3.7; source activate imager_pipe; cd /dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --production=True --workers 10 >> luigi.log 2>&1```. 
+```* * * * * /bin/bash -l -c "module load python/3.7; source activate imager_pipe; cd /dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --production=True --workers 10 >> luigi.log 2>&1"```.
 
 You must ensure that you have created the env `imager_pipe` as described in **Setup**
 
