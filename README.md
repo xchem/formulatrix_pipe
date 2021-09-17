@@ -2,19 +2,11 @@
 
 This is the luigi pipeline used to transfer images from the formulatrix imagers at the Research Complex and rank them so that they can be viewed in TeXRank.
 
-## Requirements
-
-At diamond, all of the correct python packaged needed to run this pipeline are contained in a specific python distribution, which is located at: /dls/science/groups/i04-1/software/miniconda_3/bin/python
-
-The packages required for this pipeline are:
-- luigi
-- pytds (https://github.com/denisenkom/pytds)
-- pandas
-
-(All other packages come with python)
 
 ## Setup
-Almost everything you need to set up and run the pipeline is here. You can set up the conda environment with `conda create --name imager_pipe --file spec-file.txt`.  
+Almost everything you need to set up and run the pipeline is here. You can set up the conda environment from within the cloned repo with `conda create --name imager_pipe --file spec-file.txt`.  
+
+At Diamond, you can load anaconda before you create an env for the pipeline with `module load python/3.7`
 
 You will also need the runtime for MATLAB: MCR (we've used R2012a (v7.17)), available from http://www.mathworks.co.uk/products/compiler/mcr/
 
@@ -36,11 +28,9 @@ To kill the daeomon and all child processes:
 
 To kick off the pipeline to run every minute, add the following line to a cronjob:
 
-```* * * * * export PATH=/dls/science/groups/i04-1/software/miniconda_3/bin:$PATH; cd /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --workers 10 >> luigi.log 2>&1```  
+```* * * * * /bin/bash -l -c "module load python/3.7; source activate imager_pipe; cd /dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --production=True --workers 10 >> luigi.log 2>&1```. 
 
-If there are problems with ``subprocess`` it could be because the cron job cannot find the right environment. In this case, adjust the cronjob to:  
-
-```* * * * * /bin/bash -l -c "export PATH=/dls/science/groups/i04-1/software/miniconda_3/bin:$PATH; source activate /dls/science/groups/i04-1/software/miniconda_3/envs/fmlx; cd /dls/science/groups/i04-1/software/luigi_pipeline/formulatrix_pipe; PYTHONPATH='.' luigi --module start_pipe StartPipe --workers 20 >> luigi.log 2>&1"```  
+You must ensure that you have created the env `imager_pipe` as described in **Setup**
 
 
 ## Configuration
