@@ -16,6 +16,16 @@ class StartPipe(luigi.Task):
             if not os.path.isdir(os.path.join(os.getcwd(), req)):
                 os.mkdir(os.path.join(os.getcwd(), req))
 
+        if not os.path.isfile(os.path.join(os.getcwd(), 'RankerE')):
+            import urllib.request
+            url = 'https://zenodo.org/record/5513765/files/RankerE?download=1'
+            response = urllib.request.urlopen(url)
+            content = response.read()
+            f = open(os.path.join(os.getcwd(), 'RankerE'), 'wb')
+            f.write(content)
+            f.close()
+            os.chmod(os.path.join(os.getcwd(), 'RankerE'), 0o777)
+
         if self.production:
             import sentry_sdk
             from sentry_sdk import capture_exception
