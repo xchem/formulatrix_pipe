@@ -13,7 +13,14 @@ The packages required for this pipeline are:
 
 (All other packages come with python)
 
-smbclient (https://www.samba.org/samba/docs/current/man-html/smbclient.1.html) is also required for the transfer of data from a windows drive (currently accessible only on diamonds network)
+## Setup
+Almost everything you need to set up and run the pipeline is here. You can set up the conda environment with `conda create --name imager_pipe --file spec-file.txt`.  
+
+You will also need the runtime for MATLAB: MCR (we've used R2012a (v7.17)), available from http://www.mathworks.co.uk/products/compiler/mcr/
+
+At Diamond, this already exists at `/dls/science/groups/i04-1/software/MCR/r2012a/v717`, and this path is hardcoded into `run_ranker.RunRanker`. If the location of the runtime changes, then you will need to change this path.
+
+If for some reason you need to add a new plate type or imager, you will need to generate a plate type and generate the new background images. There are instructions for this below, and the XChem staff should know how to generate the `.mat` files that are needed. 
 
 ## Running Luigi
 
