@@ -8,7 +8,7 @@ from transfer_images import TransferImages
 
 # This task kicks off the picking up of images, working backwards to find barcode info from TransferImages
 class GetPlateTypes(luigi.Task):
-    blacklist = luigi.Parameter(os.path.join(os.getcwd()), 'blacklist.txt')
+    blacklist = luigi.Parameter(os.path.join(os.getcwd(), 'blacklist.txt'))
     # these are all defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
@@ -117,7 +117,7 @@ class GetPlateTypes(luigi.Task):
 
 
 class GetBarcodeInfo(luigi.Task):
-    blacklist = luigi.Parameter(os.path.join(os.getcwd()), 'blacklist.txt')
+    blacklist = luigi.Parameter(os.path.join(os.getcwd(), 'blacklist.txt'))
     # credentials to connect to RockMaker DB as defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
