@@ -36,11 +36,13 @@ class TransferImage(luigi.Task):
                     raise Exception(
                         f"Expected image file {remote_filename} does not exist. Ask staff to check plate has imaged correctly"
                     )
+                print(os.path.join(self.rd, remote_filename))
+                print(os.path.join(self.ld, self.lf))
                 shutil.copy(
                     os.path.join(self.rd, remote_filename),
                     os.path.join(self.ld, self.lf),
                 )
-
+            
 
 class TransferImages(luigi.Task):
     barcode = luigi.Parameter()
