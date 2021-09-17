@@ -10,6 +10,12 @@ class StartPipe(luigi.Task):
     production = luigi.Parameter(default=False)
     def requires(self):
 
+        required_dirs = ['transfers', 'SubwellImages', 'Data', 'transfers', 'ranker_jobs', 'LogFiles']
+
+        for req in required_dirs:
+            if not os.path.isdir(os.path.join(os.getcwd(), req)):
+                os.mkdir(os.path.join(os.getcwd(), req))
+
         if self.production:
             import sentry_sdk
             from sentry_sdk import capture_exception
