@@ -29,7 +29,7 @@ class GetPlateTypes(luigi.Task):
     def requires(self):
 
         if os.path.isfile(self.blacklist):
-            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+            blacklisted = [x.rstrip() for x in open(self.blacklist, 'r').readlines()]
         else:
             blacklisted = ['']
 
@@ -131,7 +131,7 @@ class GetBarcodeInfo(luigi.Task):
 
     def output(self):
         if os.path.isfile(self.blacklist):
-            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+            blacklisted = [x.rstrip() for x in open(self.blacklist, 'r').readlines()]
         else:
             blacklisted = ['']
 
