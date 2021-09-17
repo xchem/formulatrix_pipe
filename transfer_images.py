@@ -245,4 +245,4 @@ will need to check what is happening."""
                     s.sendmail(msg["From"], self.emails, msg.as_string())
                     s.quit()
 
-            Path(self.output()).touch()
+            Path(self.output().path).touch()
