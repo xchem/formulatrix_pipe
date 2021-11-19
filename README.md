@@ -4,7 +4,7 @@ This is the luigi pipeline used to transfer images from the formulatrix imagers 
 
 
 ## Setup
-Almost everything you need to set up and run the pipeline is here. You can set up the conda environment from within the cloned repo with `conda create --name imager_pipe --file spec-file.txt`.  
+Almost everything you need to set up and run the pipeline is here. You can set up the conda environment from within the cloned repo with `conda create --name imager_pipe --file spec-file.txt`.  You also need to install pytds `pip install sqlalchemy-pytds` after activating the new environment.
 
 At Diamond, you can load anaconda before you create an env for the pipeline with `module load python/3.7`
 
