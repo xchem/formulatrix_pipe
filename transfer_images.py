@@ -177,7 +177,6 @@ class CheckImageDirs(luigi.Task):
     exception_list_file = luigi.Parameter(default=os.path.join(os.getcwd(), 'blacklist.txt'))
     emails = luigi.Parameter(
         default=[
-            "rachael.skyner@diamond.ac.uk",
             "jose.brandao-neto@diamond.ac.uk",
             "daren.fearon@diamond.ac.uk",
             "ailsa.powell@diamond.ac.uk",
