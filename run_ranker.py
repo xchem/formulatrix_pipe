@@ -36,7 +36,6 @@ class CheckRanker(luigi.Task):
     # a list of people to email when a plate has been ranked
     emails = luigi.Parameter(
         default=[
-            "rachael.skyner@diamond.ac.uk",
             "jose.brandao-neto@diamond.ac.uk",
             "daren.fearon@diamond.ac.uk",
             "ailsa.powell@diamond.ac.uk",
