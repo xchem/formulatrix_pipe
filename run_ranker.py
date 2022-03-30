@@ -177,10 +177,13 @@ class RunRanker(luigi.Task):
             "RI1000-0081_3drop": glob.glob("RI1000-0081-3drop*.mat"),
             "RI1000-0276_2drop": glob.glob("RI1000-0276-2drop*.mat"),
             "RI1000-0276_3drop": glob.glob("RI1000-0276-3drop*.mat"),
+            "RI1000-0276_mitegen": glob.glob("RI1000-0276-MiTInSitu*.mat"),
             "RI1000-0082_2drop": glob.glob("RI1000-0082-2drop*.mat"),
             "RI1000-0082_3drop": glob.glob("RI1000-0082-3drop*.mat"),
-            "RI1000-0276_mitegen": glob.glob("RI1000-0276-MiTInSitu*.mat"),
             "RI1000-0082_mitegen": glob.glob("RI1000-0082-MiTInSitu*.mat"),
+            "RI1000-0382_2drop": glob.glob("RI1000-0382_2drop*.mat"),
+            "RI1000-0382_3drop": glob.glob("RI1000-0382_3drop*.mat"),
+            "RI1000-0382_mitegen": glob.glob("RI1000-0382_MiTInSitu*.mat"),
         }
         # define what we want to lookup in the above dict
         lookup_string = str(self.imager + "_" + self.plate_type)
