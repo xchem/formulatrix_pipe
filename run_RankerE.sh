@@ -10,6 +10,7 @@ echo "------------------------------------------"
 if [ "x$1" = "x" ]; then
   echo Usage:
   echo    $0 \<deployedMCRroot\> args
+  exit 1
 else
   echo Setting up environment variables
   MCRROOT="$1"
@@ -35,6 +36,9 @@ else
       shift
   done
   "${exe_dir}"/RankerE $args
+  # exit $?
+  exit 0
 fi
-exit
+
+exit 2
 
