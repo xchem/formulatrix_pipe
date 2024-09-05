@@ -70,7 +70,6 @@ class CheckRanker(luigi.Task):
             "jose.brandao-neto@diamond.ac.uk",
             "daren.fearon@diamond.ac.uk",
             "ailsa.powell@diamond.ac.uk",
-            "alexandre.dias@diamond.ac.uk",
             "louise.dunnett@diamond.ac.uk",
             "peter.marples@diamond.ac.uk",
             "warren.thompson@diamond.ac.uk",
