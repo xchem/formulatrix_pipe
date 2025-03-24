@@ -16,8 +16,8 @@ import json
 token_data = json.load(open('slurm_token.json','rt'))
 SLURM_JWT=token_data['SLURM_JWT']
 SLURM_USER=token_data['SLURM_USER']
-SLURM_SUBMIT_URL="https://slurm-rest.diamond.ac.uk:8443/slurm/v0.0.38/job/submit"
-SLURM_DB_JOBS_URL="https://slurm-rest.diamond.ac.uk:8443/slurmdb/v0.0.38/jobs"
+SLURM_SUBMIT_URL="https://slurm-rest.diamond.ac.uk:8443/slurm/v0.0.42/job/submit"
+SLURM_DB_JOBS_URL="https://slurm-rest.diamond.ac.uk:8443/slurmdb/v0.0.42/jobs"
 SLURM_HEADERS={"X-SLURM-USER-NAME":SLURM_USER, "X-SLURM-USER-TOKEN":SLURM_JWT}
 
 print(f'STARTING run_ranker.py at {time.ctime()}')
@@ -74,7 +74,7 @@ class CheckRanker(luigi.Task):
             "peter.marples@diamond.ac.uk",
             "warren.thompson@diamond.ac.uk",
             "felicity.bertram@diamond.ac.uk",
-            "charlie.tomlinson@diamond.ac.uk",
+#            "charlie.tomlinson@diamond.ac.uk",
             "isabel.barker@diamond.ac.uk",
             "ryan.lithgo@diamond.ac.uk",
             "halina.mikolajek@diamond.ac.uk",
@@ -132,6 +132,9 @@ class CheckRanker(luigi.Task):
                 print(f'SLURM: searching for job_name={job_name}')
 
                 response = requests.get(SLURM_DB_JOBS_URL, params=payload, headers=SLURM_HEADERS)
+
+                if not response:
+                    raise Exception(f"Empty response. url={SLURM_DB_JOBS_URL}, params={payload}, headers={SLURM_HEADERS}")
 
                 response_data = response.json()
 
