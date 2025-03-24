@@ -176,3 +176,16 @@ def run(self):
  ```      
  
 So to add a definition, just add it to the lookup dictionary, where the key is the imager name (from RockMakerDB) an underscore, and then the plate type, as defined in the section "Adding a plate type"
+
+## Fixing Issues
+
+### `Empty response`
+
+The SLURM API cannot be reached at the provided URL. If there has been a SLURM upgrade, then it could be that the URL's and/or authentication token are out of date.
+
+- In `run_ranker.py`, update the URL's to the correct API version number
+- Generate a new authentication token and place it in `slurm_token.json`:
+
+```bash
+scontrol token username=$(whoami) lifespan=300000000
+```
