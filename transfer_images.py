@@ -70,6 +70,9 @@ class TransferImages(luigi.Task):
 
         # catch plates which have not been imaged yet
         # produce a file for each transfer (should only differ by date imaged, not plate type obvs)
+        print(self.csv_file)
+        print(dates)
+        print(imagers)
         for (date, imager) in self.dates_imagers:
             yield luigi.LocalTarget(
                 str(
