@@ -2,13 +2,14 @@ import pytds
 import luigi
 import os
 import pandas
+import subprocess
 from config_classes import RockMakerDBConfig
 from transfer_images import TransferImages
 
 
 # This task kicks off the picking up of images, working backwards to find barcode info from TransferImages
 class GetPlateTypes(luigi.Task):
-    blacklist = luigi.Parameter(os.path.join(os.getcwd(), 'blacklist.txt'))
+    blacklist = luigi.Parameter(os.path.join(os.getcwd(), "blacklist.txt"))
     # these are all defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
@@ -29,9 +30,9 @@ class GetPlateTypes(luigi.Task):
     def requires(self):
 
         if os.path.isfile(self.blacklist):
-            blacklisted = [x.rstrip() for x in open(self.blacklist, 'r').readlines()]
+            blacklisted = [x.rstrip() for x in open(self.blacklist, "r").readlines()]
         else:
-            blacklisted = ['']
+            blacklisted = [""]
 
         plate_types = []
         # connect to the RockMaker database
@@ -58,6 +59,7 @@ class GetPlateTypes(luigi.Task):
         plate_types = list(set(plate_types))
         # lists to hold barcodes and plate types
         barcodes = []
+        proposals = []
         plates = []
 
         for plate in plate_types:
@@ -69,7 +71,7 @@ class GetPlateTypes(luigi.Task):
 
             # For each plate type, find all of the relevant barcodes
             c.execute(
-                "SELECT Barcode FROM Plate "
+                "SELECT Barcode, TN2.Name FROM Plate "
                 "INNER JOIN ExperimentPlate ep ON ep.PlateID = Plate.ID "
                 "INNER JOIN ImagingTask it ON it.ExperimentPlateID = ep.ID "
                 "INNER JOIN TreeNode as TN1 ON Plate.TreeNodeID = TN1.ID "
@@ -88,6 +90,7 @@ class GetPlateTypes(luigi.Task):
                 if plate in self.translate.keys():
                     plates.append(self.translate[plate])
                     barcodes.append(str(row[0]))
+                    proposals.append(str(row[1]))
 
                 # else:
                 # raise Exception(str(plate + ' definition not found in pipeline code or config file!'))
@@ -111,13 +114,26 @@ class GetPlateTypes(luigi.Task):
             if barcode not in blacklisted
         ]
 
+        proposal_refs = [i.split("-")[0].split("_")[0] for i in proposals]
+
+        subprocess.Popen(
+            [
+                "bash",
+                "/dls_sw/apps/chimp/master/chimp/zocalo/scripts/run_XChem_CHiMP_pipe.sh",
+            ]
+            + barcodes
+            + ["--"]
+            + proposal_refs,
+            shell=True,
+        )
+
     def run(self):
         with self.output().open("w") as f:
             f.write("")
 
 
 class GetBarcodeInfo(luigi.Task):
-    blacklist = luigi.Parameter(os.path.join(os.getcwd(), 'blacklist.txt'))
+    blacklist = luigi.Parameter(os.path.join(os.getcwd(), "blacklist.txt"))
     # credentials to connect to RockMaker DB as defined in luigi.cfg
     server = RockMakerDBConfig().server
     database = RockMakerDBConfig().database
@@ -131,9 +147,9 @@ class GetBarcodeInfo(luigi.Task):
 
     def output(self):
         if os.path.isfile(self.blacklist):
-            blacklisted = [x.rstrip() for x in open(self.blacklist, 'r').readlines()]
+            blacklisted = [x.rstrip() for x in open(self.blacklist, "r").readlines()]
         else:
-            blacklisted = ['']
+            blacklisted = [""]
 
         if self.barcode not in blacklisted:
             cwd = os.getcwd()
@@ -148,9 +164,9 @@ class GetBarcodeInfo(luigi.Task):
     def run(self):
 
         if os.path.isfile(self.blacklist):
-            blacklisted = [x.rstrip for x in open(self.blacklist, 'r').readlines()]
+            blacklisted = [x.rstrip for x in open(self.blacklist, "r").readlines()]
         else:
-            blacklisted = ['']
+            blacklisted = [""]
 
         if self.barcode not in blacklisted:
             # dictionary to hold info to be written out to csv for each barcode
