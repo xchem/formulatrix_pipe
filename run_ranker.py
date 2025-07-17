@@ -74,12 +74,13 @@ class CheckRanker(luigi.Task):
             "peter.marples@diamond.ac.uk",
             "warren.thompson@diamond.ac.uk",
             "felicity.bertram@diamond.ac.uk",
-#            "charlie.tomlinson@diamond.ac.uk",
             "isabel.barker@diamond.ac.uk",
             "ryan.lithgo@diamond.ac.uk",
             "halina.mikolajek@diamond.ac.uk",
             "blake.h.balcomb@diamond.ac.uk",
             "jasmin.aschenbrenner@diamond.ac.uk",
+            "hans.pfalzgraf@diamond.ac.uk",
+	    "hannah.birtle@diamond.ac.uk",
         ]
     )
 
