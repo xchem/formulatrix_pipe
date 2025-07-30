@@ -123,8 +123,7 @@ class GetPlateTypes(luigi.Task):
             ]
             + barcodes
             + ["--"]
-            + proposal_refs,
-            shell=True,
+            + proposal_refs
         )
 
     def run(self):
