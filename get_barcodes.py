@@ -119,7 +119,7 @@ class GetPlateTypes(luigi.Task):
         subprocess.Popen(
             [
                 "bash",
-                "/dls_sw/apps/chimp/master/chimp/zocalo/scripts/run_XChem_CHiMP_pipe.sh",
+                f"{os.getcwd()}/CHiMP/upload_xchem_images_zocalo.sh",
             ]
             + barcodes
             + ["--"]
