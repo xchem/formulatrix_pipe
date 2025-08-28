@@ -1,0 +1,66 @@
+{
+    "1": [
+        "Recipe that launches post-processing for the XChem Formulatrix imagers."
+    ],
+    "1": {
+        "service": "DLS cluster submission",
+        "queue": "cluster.submission",
+        "parameters": {
+            "cluster": {
+                "commands": [
+                    "module load python/zocalo/stable",
+                    "zocalo.wrap --wrap generic_process --recipewrapper \"$RECIPEWRAP\""
+                ],
+                "job_name": "CHiMP-Class",
+                "cpus_per_task": 4,
+                "min_memory_per_cpu": 4096,
+                "account": "i04-1"
+            },
+            "recipewrapper": "/dls/tmp/xchem_formulatrix/{list_filename}/CHiMP_classify/.recipewrap",
+            "workingdir": "/dls/tmp/xchem_formulatrix/{list_filename}/CHiMP_classify/.launch"
+        },
+        "job_parameters": {
+            "wrapped_commands": [
+                "/dls_sw/apps/chimp/master/chimp/zocalo/scripts/run_CHiMP_classify.sh",
+                "/dls/tmp/xchem_formulatrix/{list_filename}.txt"
+            ]
+        },
+        "wrapper": {
+            "task_information": "xchem_CHiMP_Class"
+        },
+        "output": 2
+    },
+    "2": {
+        "service": "DLS cluster submission",
+        "queue": "cluster.submission",
+        "parameters": {
+            "cluster": {
+                "commands": [
+                    "module load python/zocalo/stable",
+                    "zocalo.wrap --wrap generic_process --recipewrapper \"$RECIPEWRAP\""
+                ],
+                "job_name": "CHiMP-Detect",
+                "cpus_per_task": 4,
+                "min_memory_per_cpu": 4096,
+                "account": "i04-1"
+            },
+            "recipewrapper": "/dls/tmp/xchem_formulatrix/{list_filename}/CHiMP_detect/.recipewrap",
+            "workingdir": "/dls/tmp/xchem_formulatrix/{list_filename}/CHiMP_detect/.launch"
+        },
+        "job_parameters": {
+            "wrapped_commands": [
+                "/dls_sw/apps/chimp/master/chimp/zocalo/scripts/run_CHiMP_detect.sh",
+                "/dls/tmp/xchem_formulatrix/{list_filename}.txt"
+            ]
+        },
+        "wrapper": {
+            "task_information": "xchem_CHiMP_Detect"
+        }
+    },
+    "start": [
+        [
+            1,
+            []
+        ]
+    ]
+}
