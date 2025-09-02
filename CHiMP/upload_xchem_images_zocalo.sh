@@ -1,7 +1,3 @@
-# Follows from XChem Luigi Pipeline
-
-CONFIG_FILE="config_xchem.json"
-
 . /etc/profile.d/modules.sh
 module load uv
 
@@ -17,6 +13,8 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 ########################################################################
 
 SCRIPT_DIR="$(realpath "$DIR/..")"
+
+CONFIG_FILE="config_xchem.json"
 
 # Separate list1 and list2 at the '--' delimiter
 args1=()

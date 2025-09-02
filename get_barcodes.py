@@ -116,15 +116,18 @@ class GetPlateTypes(luigi.Task):
 
         proposal_refs = [i.split("-")[0].split("_")[0] for i in proposals]
 
-        subprocess.Popen(
-            [
-                "bash",
-                f"{os.getcwd()}/CHiMP/upload_xchem_images_zocalo.sh",
-            ]
-            + barcodes
-            + ["--"]
-            + proposal_refs
-        )
+        with open(f"{os.getcwd()}/CHiMP/CHiMP_subprocess.log", "w") as logfile:
+            subprocess.Popen(
+                [
+                    "bash",
+                    f"{os.getcwd()}/CHiMP/upload_xchem_images_zocalo.sh",
+                ]
+                + barcodes
+                + ["--"]
+                + proposal_refs,
+                stdout=logfile,
+                stderr=logfile,
+            )
 
     def run(self):
         with self.output().open("w") as f:
