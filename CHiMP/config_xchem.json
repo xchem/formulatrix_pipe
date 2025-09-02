@@ -1,0 +1,15 @@
+{
+    "url": "http://expeye.diamond.ac.uk", 
+    "url_test": "http://expeye-test.diamond.ac.uk", 
+    "token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJleHBleWUiLCJzdWIiOiJ4Y2hlbS1jaGltcCIsImF1ZCI6ImV4cGV5ZSIsInBlcm1pc3Npb25zIjpbInN1cGVyX2FkbWluIl19.uWcVPL_QA9cj5yccByAVWAHffLICh2uy6MUclitzLD6YPFfJzXpHV12QTBeHiO3xp428NPJG5W2dU8BwXAj79A",
+	"token_test": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJleHBleWUiLCJzdWIiOiJ4Y2hlbS1jaGltcCIsImF1ZCI6ImV4cGV5ZSIsInBlcm1pc3Npb25zIjpbInN1cGVyX2FkbWluIl19.vh32QMirCwOMYg41AiwsuomnyhJ6tMSZPEYMWM0EG51TJ_AoeJNjjbZwPbVko9YSzBBb4SOpNRqZdYzPSezF3A",
+	"luigi_dir": "/dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe/SubwellImages",
+	"types": {
+		"SWISSCI 2 Drop": { "well_per_row": 12, "drops_per_well": 2, "container_type_id": 20},
+        "SWISSCI 3 Drop": { "well_per_row": 12, "drops_per_well": 3, "container_type_id": 23}
+	},
+	"logging": {
+		"tmp_log": {"directory": "/dls/tmp/xchem_formulatrix", "level": "info"},
+		"gelf_udp": {"host": "graylog-log-target.diamond.ac.uk", "port": 12213, "facility": "fmlx_xchem", "level": "info"}
+    }
+}
