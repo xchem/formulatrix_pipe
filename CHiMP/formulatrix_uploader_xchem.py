@@ -3,14 +3,10 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "graypy",
-#     "numpy<2",
-#     "pandas",
 #     "requests"
 # ]
 # ///
 
-import numpy as np
-import pandas as pd
 import requests
 import subprocess
 import argparse
