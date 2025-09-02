@@ -13,15 +13,12 @@ import numpy as np
 import pandas as pd
 import requests
 import subprocess
-import configparser
 import argparse
 import logging
 import json
 import shutil
 import os.path
 import datetime, time
-import ast
-import sys
 
 from pathlib import Path
 from graypy import GELFUDPHandler
@@ -47,7 +44,6 @@ log_cfg = config["logging"]
 # Setup logging
 logger = logging.getLogger()
 logger.setLevel(level=logging.INFO)
-# handler = GELFUDPHandler("graylog-log-target.diamond.ac.uk", 12213)
 handler = GELFUDPHandler(log_cfg["gelf_udp"]["host"], log_cfg["gelf_udp"]["port"])
 handler.facility = log_cfg["gelf_udp"].get("facility")
 logger.addHandler(handler)
@@ -125,7 +121,6 @@ for i in range(len(barcodes)):
         ).json()
         protein_id = resp["proteins"][0]["proteinId"]  # not exact
 
-        # crystal_id = resp["items"][0]["crystalId"]
         r = requests.post(
             url + f"/api/proteins/{protein_id}/crystals", headers=headers, json={}
         )
@@ -146,8 +141,8 @@ for i in range(len(barcodes)):
             container_type = f"SWISSCI {drop} Drop"
         elif drop == 2:
             logger.info(f"2 drop plate view not yet supported on Synchweb, coming soon")
-            container_type_id = 14  # 20 - MRC 2 drop, 14 - CrystalQuickX
-            container_type = f"CrystalQuickX"
+            # container_type_id = 14  # 20 - MRC 2 drop, 14 - CrystalQuickX
+            # container_type = f"CrystalQuickX"
             continue
 
         # Register the container
@@ -156,9 +151,9 @@ for i in range(len(barcodes)):
             "barcode": barcode,
             "code": list_filename,
             "containerType": container_type,
+            "containerTypeId": container_type_id,
             "capacity": 96 * drop,
             "bltimeStamp": timestamp,
-            # "containerTypeId": container_type_id,
         }
         r = requests.post(
             url + f"/api/dewars/{dewar_id}/containers", headers=headers, json=body
@@ -210,7 +205,7 @@ for i in range(len(barcodes)):
             time.sleep(25 / 1000)  #
 
         logger.info(
-            f"Sample image info registered to container id {container_id}, barcode {barcode}"
+            f"Sample image info registered for plate {list_filename}, https://ispyb.diamond.ac.uk/containers/cid/{container_id}"
         )
 
         command = f"zocalo.go -f {ZOCALO_RECIPE} -s list_filename={list_filename} -n"
